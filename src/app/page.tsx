@@ -178,7 +178,7 @@ export default function Portfolio() {
           <div className="hero-right">
             <div className="hero-text">
               <h1 className="hero-title">
-                <span className="title-line">Hi, I'm</span>
+                <span className="title-line">Hi, I&apos;m</span>
                 <span className="title-name">Harsh Agarwal</span>
                 <span className="title-role">Computer Science Student & Developer</span>
               </h1>
@@ -287,7 +287,7 @@ export default function Portfolio() {
 
               <p className="about-paragraph">
                 I am also an active member of the anchoring team, where I host various events and contribute to our
-                college's extracurricular activities. Currently seeking opportunities to apply my skills in challenging
+                college&apos;s extracurricular activities. Currently seeking opportunities to apply my skills in challenging
                 software development roles where I can contribute to meaningful projects while continuing to learn and
                 grow.
               </p>

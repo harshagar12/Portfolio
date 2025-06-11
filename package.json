@@ -1,14 +1,18 @@
 {
+  "homepage": "https://harshagar12.github.io/Portfolio",
   "name": "portfolio",
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d out",
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "gh-pages": "^6.3.0",
     "lucide-react": "^0.514.0",
     "next": "15.3.3",
     "react": "^19.0.0",
