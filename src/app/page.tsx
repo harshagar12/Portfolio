@@ -213,6 +213,16 @@ export default function Portfolio() {
                 >
                   View My Work
                 </button>
+                <a
+                  href="/Resume.pdf"
+                  className="btn btn-primary"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onMouseEnter={() => setCursorVariant("hover")}
+                  onMouseLeave={() => setCursorVariant("default")}
+                >
+                  Resume
+                </a>
                 <div className="social-links-hero">
                   <a
                     href="https://github.com/harshagar12"
