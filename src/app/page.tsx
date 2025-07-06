@@ -289,10 +289,6 @@ export default function Portfolio() {
               <p className="about-paragraph">
               My core expertise includes full-stack development with modern web-dev technologies, IoT automation using microcontrollers, and AI integration. Proficient in Python, Java, and C with hands-on experience in database management and API integration.
               </p>
-
-              <p className="about-paragraph">
-              Beyond coding, I also actively contribute as an anchor at college event&apos;s, combining technical skills with strong communication abilities. Currently seeking challenging software development opportunities to apply my skills in meaningful projects while driving innovation and continuous learning.
-              </p>
             </div>
 
             <div className="contact-info">
@@ -303,6 +299,44 @@ export default function Portfolio() {
               <div className="contact-item">
                 <MapPin className="contact-icon" />
                 <span>Jodhpur, Rajasthan</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Anchoring Section */}
+      <section className="section anchoring-section">
+        <div className="container">
+          <div className="anchoring-content">
+            <div className="anchoring-left">
+              <div className="anchoring-text">
+                <h3 className="anchoring-title">Beyond Code: The Voice of Events</h3>
+                <p className="anchoring-description">
+                Beyond coding, I also actively contribute as an anchor at college event&apos;s, combining technical skills with strong communication abilities. Currently seeking challenging software development opportunities to apply my skills in meaningful projects while driving innovation and continuous learning.
+                </p>
+              </div>
+              <div className="hero-stats anchoring-hero-stats">
+                <div className="stat">
+                  <span className="stat-number">50+</span>
+                  <span className="stat-label">Events Hosted</span>
+                </div>
+                <div className="stat">
+                  <span className="stat-number">1000+</span>
+                  <span className="stat-label">Audience Members</span>
+                </div>
+              </div>
+            </div>
+            <div className="anchoring-gallery">
+              <div className="anchoring-image-container">
+                <Image
+                  src="/images/anchoring1.jpg"
+                  alt="Harsh Agarwal anchoring college event"
+                  width={300}
+                  height={400}
+                  className="anchoring-image"
+                />
+                <div className="anchoring-overlay"></div>
               </div>
             </div>
           </div>
@@ -391,6 +425,14 @@ export default function Portfolio() {
 
           <div className="projects-grid">
             {[
+              {
+                title: "Literate",
+                description:
+                  "An AI-powered, full-stack reading application that enables users to upload books and interact with a chatbot that answers context-aware questions using a RAG pipeline. Features an intuitive reading interface, integrated note-taking, and robust data persistence with Firestore.",
+                image: "/images/project5.png",
+                link: "https://github.com/harshagar12/Literate",
+                tech: ["TypeScript", "Next.js", "FireStore", "GenKitAI"],
+              },
               {
                 title: "BlogWave",
                 description:
