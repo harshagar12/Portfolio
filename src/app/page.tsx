@@ -318,7 +318,7 @@ export default function Portfolio() {
               </div>
               <div className="hero-stats anchoring-hero-stats">
                 <div className="stat">
-                  <span className="stat-number">50+</span>
+                  <span className="stat-number">10+</span>
                   <span className="stat-label">Events Hosted</span>
                 </div>
                 <div className="stat">
