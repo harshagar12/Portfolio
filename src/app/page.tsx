@@ -16,6 +16,7 @@ import {
   X,
   MapPin,
   Mail,
+
 } from "lucide-react"
 import Image from "next/image"
 
@@ -184,9 +185,7 @@ export default function Portfolio() {
               </h1>
 
               <p className="hero-description">
-                A passionate second-year Computer Science Engineering student, transforming innovative ideas into
-                practical technological solutions. With expertise in IoT, web development, and AI/ML, I bridge the gap
-                between theoretical knowledge and real-world applications.
+              Third-year CSE student specializing in full-stack development, IoT automation, and AI/ML integration. Proven hackathon winner who transforms innovative ideas into practical solutions, bridging academic excellence with real-world impact.
               </p>
 
               <div className="hero-stats">
@@ -284,22 +283,15 @@ export default function Portfolio() {
           <div className="about-content">
             <div className="about-text">
               <p className="about-paragraph">
-                As a computer science student, I am driven and detail-oriented with a deep passion for technological
-                innovation. My journey in software development started with competitive programming and has evolved into
-                building full-stack applications, IoT projects, and AI/ML solutions.
+              Driven Computer Science student with a track record of academic excellence, including Silver Medal for being the Class Topper in 2nd Semester. My technical journey spans not just theory but also competitive programming to building production-ready applications across web development, IoT systems, and AI/ML solutions.
               </p>
 
               <p className="about-paragraph">
-                My academic achievements include receiving a Silver Medal for being the Class Topper in the 2nd
-                Semester, reflecting my commitment to excellence. Beyond academics, I specialize in developing web
-                applications and IoT projects while maintaining a strong foundation in Python and Java development.
+              My core expertise includes full-stack development with modern web-dev technologies, IoT automation using microcontrollers, and AI integration. Proficient in Python, Java, and C with hands-on experience in database management and API integration.
               </p>
 
               <p className="about-paragraph">
-                I am also an active member of the anchoring team, where I host various events and contribute to our
-                college&apos;s extracurricular activities. Currently seeking opportunities to apply my skills in challenging
-                software development roles where I can contribute to meaningful projects while continuing to learn and
-                grow.
+              Beyond coding, I also actively contribute as an anchor at college event&apos;s, combining technical skills with strong communication abilities. Currently seeking challenging software development opportunities to apply my skills in meaningful projects while driving innovation and continuous learning.
               </p>
             </div>
 
