@@ -16,7 +16,8 @@ import {
   X,
   MapPin,
   Mail,
-
+  Sun,
+  Moon,
 } from "lucide-react"
 import Image from "next/image"
 
@@ -26,7 +27,25 @@ export default function Portfolio() {
   const [scrollY, setScrollY] = useState(0)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [cursorVariant, setCursorVariant] = useState("default")
+  const [isDarkMode, setIsDarkMode] = useState(true)
   const skillsRef = useRef<HTMLDivElement>(null)
+
+  // Theme toggle functionality
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme")
+    if (savedTheme) {
+      setIsDarkMode(savedTheme === "dark")
+    }
+  }, [])
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", isDarkMode ? "dark" : "light")
+    localStorage.setItem("theme", isDarkMode ? "dark" : "light")
+  }, [isDarkMode])
+
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode)
+  }
 
   // Mouse tracking for cursor follower
   useEffect(() => {
@@ -66,7 +85,9 @@ export default function Portfolio() {
     if (element) {
       element.scrollIntoView({ behavior: "smooth" })
     }
-    setIsMenuOpen(false)
+    if (isMenuOpen) {
+      setIsMenuOpen(false)
+    }
   }
 
   const navItems = [
@@ -76,6 +97,12 @@ export default function Portfolio() {
     { id: "projects", label: "Projects", icon: Briefcase },
     { id: "accomplishments", label: "Accomplishments", icon: Award },
     { id: "education", label: "Education", icon: GraduationCap },
+  ]
+
+  const socialLinks = [
+    { href: "https://github.com/harshagar12", icon: Github, label: "GitHub" },
+    { href: "https://www.linkedin.com/in/harsh-agarwal-a31b4528b", icon: Linkedin, label: "LinkedIn" },
+    { href: "https://x.com/HarshAgar12", icon: Twitter, label: "Twitter" },
   ]
 
   return (
@@ -107,44 +134,94 @@ export default function Portfolio() {
         }}
       />
 
-      {/* Navigation */}
+      {/* Enhanced Navigation */}
       <nav className={`navbar ${scrollY > 50 ? "scrolled" : ""}`}>
-        <div className="nav-container">
-          <div className="nav-brand">
-            <span className="brand-text">Harsh Agarwal</span>
-          </div>
+  <div className="nav-container">
+    <div className="nav-brand">
+      <span className="brand-name">Harsh Agarwal</span>
+    </div>
 
-          <div className={`nav-menu ${isMenuOpen ? "active" : ""}`}>
-            {navItems.map((item) => {
-              const Icon = item.icon
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => scrollToSection(item.id)}
-                  className={`nav-item ${activeSection === item.id ? "active" : ""}`}
-                  onMouseEnter={() => setCursorVariant("hover")}
-                  onMouseLeave={() => setCursorVariant("default")}
-                >
-                  <Icon size={18} />
-                  <span>{item.label}</span>
-                </button>
-              )
-            })}
-          </div>
-
+    <div className={`nav-menu ${isMenuOpen ? "active" : ""}`}>
+      {navItems.map((item) => {
+        const Icon = item.icon;
+        return (
           <button
-            className="mobile-menu-toggle"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            onMouseEnter={() => setCursorVariant("hover")}
-            onMouseLeave={() => setCursorVariant("default")}
+            key={item.id}
+            onClick={() => scrollToSection(item.id)}
+            className={`nav-item ${activeSection === item.id ? "active" : ""}`}
           >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            <Icon size={18} />
+            <span className="nav-label">{item.label}</span>
           </button>
-        </div>
-      </nav>
+        );
+      })}
+      <button
+        onClick={toggleTheme}
+        className="theme-toggle theme-toggle-desktop"
+        aria-label="Toggle theme"
+      >
+        {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+      </button>
+      {/* Social links for mobile/tablet only */}
+      <div className="nav-social-mobile">
+        {socialLinks.map((social) => {
+          const Icon = social.icon;
+          return (
+            <a
+              key={social.label}
+              href={social.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="nav-social-link"
+              aria-label={social.label}
+            >
+              <Icon size={16} />
+            </a>
+          );
+        })}
+      </div>
+    </div>
+
+    <div className="nav-actions">
+      <div className="nav-social">
+        {socialLinks.map((social) => {
+          const Icon = social.icon;
+          return (
+            <a
+              key={social.label}
+              href={social.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="nav-social-link"
+              aria-label={social.label}
+            >
+              <Icon size={16} />
+            </a>
+          );
+        })}
+      </div>
+
+      <button
+        onClick={toggleTheme}
+        className="theme-toggle theme-toggle-mobile"
+        aria-label="Toggle theme"
+      >
+        {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+      </button>
+
+      <button
+        className="mobile-menu-toggle"
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+      >
+        {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+    </div>
+  </div>
+</nav>
 
       {/* Hero Section */}
-      <section id="home" className="hero-section">
+      <section id="home" className="hero-section" style={{ paddingTop: "120px" }}>
         <div className="hero-background">
           <div className="floating-shapes">
             <div className="shape shape-1"></div>
@@ -162,8 +239,8 @@ export default function Portfolio() {
                 <Image
                   src="/images/profile.jpg"
                   alt="Harsh Agarwal"
-                  width={300}
-                  height={300}
+                  width={350}
+                  height={350}
                   className="profile-image"
                 />
                 <div className="tech-orbit">
@@ -178,6 +255,13 @@ export default function Portfolio() {
 
           <div className="hero-right">
             <div className="hero-text">
+              <div className="text-background-balls">
+                <div className="bouncing-ball ball-1"></div>
+                <div className="bouncing-ball ball-2"></div>
+                <div className="bouncing-ball ball-3"></div>
+                <div className="bouncing-ball ball-4"></div>
+                <div className="bouncing-ball ball-5"></div>
+              </div>
               <h1 className="hero-title">
                 <span className="title-line">Hi, I&apos;m</span>
                 <span className="title-name">Harsh Agarwal</span>
@@ -185,7 +269,9 @@ export default function Portfolio() {
               </h1>
 
               <p className="hero-description">
-              Third-year CSE student specializing in full-stack development, IoT automation, and AI/ML integration. Proven hackathon winner who transforms innovative ideas into practical solutions, bridging academic excellence with real-world impact.
+                Third-year CSE student specializing in full-stack development, IoT automation, and AI/ML integration.
+                Proven hackathon winner who transforms innovative ideas into practical solutions, bridging academic
+                excellence with real-world impact.
               </p>
 
               <div className="hero-stats">
@@ -214,7 +300,7 @@ export default function Portfolio() {
                 </button>
                 <a
                   href="/Resume.pdf"
-                  className="btn btn-primary"
+                  className="btn btn-secondary"
                   target="_blank"
                   rel="noopener noreferrer"
                   onMouseEnter={() => setCursorVariant("hover")}
@@ -222,41 +308,6 @@ export default function Portfolio() {
                 >
                   Resume
                 </a>
-                <div className="social-links-hero">
-                  <a
-                    href="https://github.com/harshagar12"
-                    className="social-link"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="GitHub Profile"
-                    onMouseEnter={() => setCursorVariant("hover")}
-                    onMouseLeave={() => setCursorVariant("default")}
-                  >
-                    <Github size={20} />
-                  </a>
-                  <a
-                    href="https://www.linkedin.com/in/harsh-agarwal-a31b4528b"
-                    className="social-link"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="LinkedIn Profile"
-                    onMouseEnter={() => setCursorVariant("hover")}
-                    onMouseLeave={() => setCursorVariant("default")}
-                  >
-                    <Linkedin size={20} />
-                  </a>
-                  <a
-                    href="https://x.com/HarshAgar12"
-                    className="social-link"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Twitter Profile"
-                    onMouseEnter={() => setCursorVariant("hover")}
-                    onMouseLeave={() => setCursorVariant("default")}
-                  >
-                    <Twitter size={20} />
-                  </a>
-                </div>
               </div>
             </div>
           </div>
@@ -282,12 +333,22 @@ export default function Portfolio() {
 
           <div className="about-content">
             <div className="about-text">
+              <div className="text-background-balls">
+                <div className="bouncing-ball ball-1"></div>
+                <div className="bouncing-ball ball-2"></div>
+                <div className="bouncing-ball ball-3"></div>
+              </div>
               <p className="about-paragraph">
-              Driven Computer Science student with a track record of academic excellence, including Silver Medal for being the Class Topper in 2nd Semester. My technical journey spans not just theory but also competitive programming to building production-ready applications across web development, IoT systems, and AI/ML solutions.
+                Driven Computer Science student with a track record of academic excellence, including Silver Medal for
+                being the Class Topper in 2nd Semester. My technical journey spans not just theory but also competitive
+                programming to building production-ready applications across web development, IoT systems, and AI/ML
+                solutions.
               </p>
 
               <p className="about-paragraph">
-              My core expertise includes full-stack development with modern web-dev technologies, IoT automation using microcontrollers, and AI integration. Proficient in Python, Java, and C with hands-on experience in database management and API integration.
+                My core expertise includes full-stack development with modern web-dev technologies, IoT automation using
+                microcontrollers, and AI integration. Proficient in Python, Java, and C with hands-on experience in
+                database management and API integration.
               </p>
             </div>
 
@@ -305,38 +366,57 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* Anchoring Section */}
+      {/* Enhanced Anchoring Section */}
       <section className="section anchoring-section">
         <div className="container">
           <div className="anchoring-content">
             <div className="anchoring-left">
               <div className="anchoring-text">
+                <div className="text-background-balls">
+                  <div className="bouncing-ball ball-1"></div>
+                  <div className="bouncing-ball ball-2"></div>
+                  <div className="bouncing-ball ball-3"></div>
+                </div>
                 <h3 className="anchoring-title">Beyond Code: The Voice of Events</h3>
                 <p className="anchoring-description">
-                Beyond coding, I also actively contribute as an anchor at college event&apos;s, combining technical skills with strong communication abilities. Currently seeking challenging software development opportunities to apply my skills in meaningful projects while driving innovation and continuous learning.
+                  Beyond coding, I also actively contribute as an anchor at college events, combining technical skills
+                  with strong communication abilities. Currently seeking challenging software development opportunities
+                  to apply my skills in meaningful projects while driving innovation and continuous learning.
                 </p>
-              </div>
-              <div className="hero-stats anchoring-hero-stats">
-                <div className="stat">
-                  <span className="stat-number">10+</span>
-                  <span className="stat-label">Events Hosted</span>
-                </div>
-                <div className="stat">
-                  <span className="stat-number">1000+</span>
-                  <span className="stat-label">Audience Members</span>
-                </div>
               </div>
             </div>
             <div className="anchoring-gallery">
+              <div className="anchoring-background">
+                <div className="anchoring-shapes">
+                  <div className="anchoring-shape anchoring-shape-1"></div>
+                  <div className="anchoring-shape anchoring-shape-2"></div>
+                  <div className="anchoring-shape anchoring-shape-3"></div>
+                  <div className="anchoring-shape anchoring-shape-4"></div>
+                  <div className="anchoring-shape anchoring-shape-5"></div>
+                </div>
+              </div>
               <div className="anchoring-image-container">
                 <Image
                   src="/images/anchoring1.jpg"
                   alt="Harsh Agarwal anchoring college event"
-                  width={300}
-                  height={400}
+                  width={400}
+                  height={500}
                   className="anchoring-image"
                 />
-                <div className="anchoring-overlay"></div>
+              </div>
+            </div>
+            <div className="anchoring-stats">
+              <div className="anchoring-stat">
+                <span className="stat-number">10+</span>
+                <span className="stat-label">Events Hosted</span>
+              </div>
+              <div className="anchoring-stat">
+                <span className="stat-number">1000+</span>
+                <span className="stat-label">Audience Members</span>
+              </div>
+              <div className="anchoring-stat">
+                <span className="stat-number">3+</span>
+                <span className="stat-label">Years Experience</span>
               </div>
             </div>
           </div>
@@ -676,33 +756,21 @@ export default function Portfolio() {
           <div className="footer-content">
             <p>&copy; 2024 Harsh Agarwal. All rights reserved.</p>
             <div className="footer-social">
-              <a
-                href="https://github.com/harshagar12"
-                target="_blank"
-                rel="noopener noreferrer"
-                onMouseEnter={() => setCursorVariant("hover")}
-                onMouseLeave={() => setCursorVariant("default")}
-              >
-                <Github size={18} />
-              </a>
-              <a
-                href="https://www.linkedin.com/in/harsh-agarwal-a31b4528b"
-                target="_blank"
-                rel="noopener noreferrer"
-                onMouseEnter={() => setCursorVariant("hover")}
-                onMouseLeave={() => setCursorVariant("default")}
-              >
-                <Linkedin size={18} />
-              </a>
-              <a
-                href="https://x.com/HarshAgar12"
-                target="_blank"
-                rel="noopener noreferrer"
-                onMouseEnter={() => setCursorVariant("hover")}
-                onMouseLeave={() => setCursorVariant("default")}
-              >
-                <Twitter size={18} />
-              </a>
+              {socialLinks.map((social) => {
+                const Icon = social.icon
+                return (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onMouseEnter={() => setCursorVariant("hover")}
+                    onMouseLeave={() => setCursorVariant("default")}
+                  >
+                    <Icon size={18} />
+                  </a>
+                )
+              })}
             </div>
           </div>
         </div>
