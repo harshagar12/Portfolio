@@ -30,6 +30,50 @@ export default function Portfolio() {
   const [isDarkMode, setIsDarkMode] = useState(true)
   const skillsRef = useRef<HTMLDivElement>(null)
 
+  // --- Indicator state ---
+  const navRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({})
+  const indicatorRef = useRef<HTMLDivElement>(null)
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 })
+
+  useEffect(() => {
+    // Update indicator position/width when activeSection changes or on resize
+    const updateIndicator = () => {
+      const activeRef = navRefs.current[activeSection]
+      if (activeRef && indicatorRef.current) {
+        const rect = activeRef.getBoundingClientRect()
+        const parentRect = activeRef.parentElement?.getBoundingClientRect()
+        if (parentRect) {
+          setIndicatorStyle({
+            left: rect.left - parentRect.left,
+            width: rect.width,
+          })
+        }
+      }
+    }
+    updateIndicator()
+    window.addEventListener("resize", updateIndicator)
+    return () => window.removeEventListener("resize", updateIndicator)
+  }, [activeSection, isMenuOpen])
+
+  useEffect(() => {
+    // Also update on scroll for smoothness
+    const onScroll = () => {
+      const activeRef = navRefs.current[activeSection]
+      if (activeRef && indicatorRef.current) {
+        const rect = activeRef.getBoundingClientRect()
+        const parentRect = activeRef.parentElement?.getBoundingClientRect()
+        if (parentRect) {
+          setIndicatorStyle({
+            left: rect.left - parentRect.left,
+            width: rect.width,
+          })
+        }
+      }
+    }
+    window.addEventListener("scroll", onScroll)
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [activeSection, isMenuOpen])
+
   // Theme toggle functionality
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme")
@@ -141,12 +185,29 @@ export default function Portfolio() {
       <span className="brand-name">Harsh Agarwal</span>
     </div>
 
-    <div className={`nav-menu ${isMenuOpen ? "active" : ""}`}>
+    <div className={`nav-menu ${isMenuOpen ? "active" : ""}`} style={{ position: "relative" }}>
+      {/* Animated indicator bar */}
+      <div
+        ref={indicatorRef}
+        style={{
+          position: "absolute",
+          left: indicatorStyle.left,
+          width: indicatorStyle.width,
+          height: 4,
+          bottom: 0,
+          background: "var(--accent-primary)",
+          borderRadius: 2,
+          transition: "left 0.4s cubic-bezier(0.4,0,0.2,1), width 0.4s cubic-bezier(0.4,0,0.2,1)",
+          zIndex: 0,
+          pointerEvents: "none",
+        }}
+      />
       {navItems.map((item) => {
         const Icon = item.icon;
         return (
           <button
             key={item.id}
+            ref={el => { navRefs.current[item.id] = el; }}
             onClick={() => scrollToSection(item.id)}
             className={`nav-item ${activeSection === item.id ? "active" : ""}`}
           >
@@ -200,14 +261,6 @@ export default function Portfolio() {
           );
         })}
       </div>
-
-      <button
-        onClick={toggleTheme}
-        className="theme-toggle theme-toggle-mobile"
-        aria-label="Toggle theme"
-      >
-        {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
-      </button>
 
       <button
         className="mobile-menu-toggle"

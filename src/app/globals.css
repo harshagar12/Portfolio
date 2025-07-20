@@ -196,7 +196,7 @@ body {
   align-items: center;
   justify-content: space-between;
   height: 60px;
-  gap: 2rem;
+  gap: 2.5rem; /* slightly increased for balance */
 }
 
 .nav-brand {
@@ -221,7 +221,7 @@ body {
   padding: 0.25rem;
   border-radius: 30px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  margin-left: -1.5rem;
+  margin-left: 0.5rem; /* reduced from -1.5rem to 0.5rem to move it right */
 }
 
 [data-theme="light"] .nav-menu {
@@ -302,13 +302,14 @@ body {
   color: var(--accent-primary);
   background: rgba(0, 212, 255, 0.1);
   border-color: var(--accent-primary);
-  transform: scale(1.1);
+  transform: translateY(-2px) rotate(10deg); /* match footer animation */
 }
 
 [data-theme="light"] .nav-social-link:hover {
   color: #2b6cb0;
   background: rgba(43, 108, 176, 0.1);
   border-color: #2b6cb0;
+  transform: translateY(-2px) rotate(10deg); /* match footer animation */
 }
 
 .theme-toggle {
