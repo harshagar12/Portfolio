@@ -216,12 +216,13 @@ export default function Portfolio() {
           </button>
         );
       })}
+      {/* Mobile theme toggle - shown only in mobile menu */}
       <button
         onClick={toggleTheme}
-        className="theme-toggle theme-toggle-desktop"
+        className="theme-toggle theme-toggle-mobile"
         aria-label="Toggle theme"
       >
-        {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+        {isDarkMode ? <Sun size={15} /> : <Moon size={15} />}
       </button>
       {/* Social links for mobile/tablet only */}
       <div className="nav-social-mobile">
@@ -244,34 +245,30 @@ export default function Portfolio() {
     </div>
 
     <div className="nav-actions">
-      <div className="nav-social">
-        {socialLinks.map((social) => {
-          const Icon = social.icon;
-          return (
-            <a
-              key={social.label}
-              href={social.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="nav-social-link"
-              aria-label={social.label}
-            >
-              <Icon size={16} />
-            </a>
-          );
-        })}
-      </div>
-
+      {/* Desktop theme toggle - hidden on mobile */}
       <button
+        onClick={toggleTheme}
+        className="theme-toggle theme-toggle-desktop"
+        aria-label="Toggle theme"
+      >
+        {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+      </button>
+
+      {/* Mobile menu toggle - shown only on mobile */}
+      
+    </div>
+      </div>
+    </nav>
+    <button
         className="mobile-menu-toggle"
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        onClick={() => {
+          console.log('Current state:', isMenuOpen);
+          setIsMenuOpen(!isMenuOpen);
+        }}
         aria-label={isMenuOpen ? "Close menu" : "Open menu"}
       >
         {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
-    </div>
-  </div>
-</nav>
 
       {/* Hero Section */}
       <section id="home" className="hero-section" style={{ paddingTop: "120px" }}>
