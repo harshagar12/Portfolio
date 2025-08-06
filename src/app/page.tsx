@@ -564,6 +564,15 @@ export default function Portfolio() {
                 tech: ["TypeScript", "Next.js", "FireStore", "GenKitAI"],
               },
               {
+                title: "LitWise",
+                description:
+                  "An AI-powered book recommendation platform that delivers personalized suggestions by leveraging machine learning techniques such as K-Means clustering and TF-IDF-based content filtering. Features a beautiful Next.js frontend, FastAPI backend, and real-world Goodreads dataset integration.",
+                image: "/images/project6.png",
+                link: "https://github.com/harshagar12/LitWise",
+                tech: [
+                  "Next.js","React","TypeScript","Tailwind CSS","FastAPI","Python","Pandas","Scikit-learn"],
+              }, 
+              {
                 title: "BlogWave",
                 description:
                   "A full-stack blogging platform enabling users to create, share, and explore diverse content. Built with Node.js, Express.js, MySQL, and modern web technologies.",
