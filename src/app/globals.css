@@ -354,7 +354,6 @@ body {
   border: 1px solid var(--border-color);
   color: var(--text-primary);
   cursor: pointer;
-  padding: 0.5rem;
   border-radius: 50%;
   transition: all 0.3s ease;
   width: 40px;
@@ -362,7 +361,7 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 1100; /* Add this */
-  position: absolute;
+  position: fixed; 
   left: 20rem;
   top: 1.3rem
 }
@@ -2068,7 +2067,7 @@ body {
     display: block !important;
     align-items: center;
     justify-content: center;
-    position: relative;
+    position: fixed;
     z-index: 1100;
     margin-left: 10rem;
     background: var(--card-bg);
