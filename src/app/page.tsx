@@ -216,14 +216,7 @@ export default function Portfolio() {
           </button>
         );
       })}
-      {/* Mobile theme toggle - shown only in mobile menu */}
-      <button
-        onClick={toggleTheme}
-        className="theme-toggle theme-toggle-mobile"
-        aria-label="Toggle theme"
-      >
-        {isDarkMode ? <Sun size={15} /> : <Moon size={15} />}
-      </button>
+      
       {/* Social links for mobile/tablet only */}
       <div className="nav-social-mobile">
         {socialLinks.map((social) => {
@@ -268,6 +261,15 @@ export default function Portfolio() {
         aria-label={isMenuOpen ? "Close menu" : "Open menu"}
       >
         {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
+    {/* Mobile theme toggle - shown only in mobile menu */}
+      <button
+        onClick={toggleTheme}
+        className="theme-toggle theme-toggle-mobile"
+        aria-label="Toggle theme"
+      >
+        {isDarkMode ? <Sun size={15} /> : <Moon size={15} />}
       </button>
 
       {/* Hero Section */}
