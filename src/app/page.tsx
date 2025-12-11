@@ -321,7 +321,7 @@ export default function Portfolio() {
               </h1>
 
               <p className="hero-description">
-                Third-year CSE student specializing in full-stack development, IoT automation, and AI/ML integration.
+                Third-year CSE student specializing in full-stack development, IoT automation and AI/ML integration.
                 Proven hackathon winner who transforms innovative ideas into practical solutions, bridging academic
                 excellence with real-world impact.
               </p>
@@ -393,13 +393,13 @@ export default function Portfolio() {
               <p className="about-paragraph">
                 Driven Computer Science student with a track record of academic excellence, including Silver Medal for
                 being the Class Topper in 2nd Semester. My technical journey spans not just theory but also competitive
-                programming to building production-ready applications across web development, IoT systems, and AI/ML
+                programming to building production-ready applications across web development, IoT systems and AI/ML
                 solutions.
               </p>
 
               <p className="about-paragraph">
                 My core expertise includes full-stack development with modern web-dev technologies, IoT automation using
-                microcontrollers, and AI integration. Proficient in Python, Java, and C with hands-on experience in
+                microcontrollers and AI integration. Proficient in Python, Java and C with hands-on experience in
                 database management and API integration.
               </p>
             </div>
@@ -558,18 +558,25 @@ export default function Portfolio() {
           <div className="projects-grid">
             {[
               {
+                title: "StudyMate",
+                description: "A Study companion designed to streamline learning and organization. Features a comprehensive resource hub for PDFs and YouTube content, a context-aware AI tutor powered by Google Gemini and a smart rich-text note-taking system. Built with a modern glassmorphism UI for an immersive study experience.",
+                image: "/images/studymate.png",
+                link: "https://github.com/harshagar12/StudyMate",
+                tech: ["TypeScript", "React", "Supabase", "Google Gemini API", "Node.js", "Tailwind CSS"],
+              },
+              {
                 title: "Literate",
                 description:
-                  "An AI-powered, full-stack reading application that enables users to upload books and interact with a chatbot that answers context-aware questions using a RAG pipeline. Features an intuitive reading interface, integrated note-taking, and robust data persistence with Firestore.",
-                image: "/images/project5.png",
+                  "An AI-powered, full-stack reading application that enables users to upload books and interact with a chatbot that answers context-aware questions using a RAG pipeline. Features an intuitive reading interface, integrated note-taking and robust data persistence with Firestore.",
+                image: "/images/literate.png",
                 link: "https://github.com/harshagar12/Literate",
                 tech: ["TypeScript", "Next.js", "FireStore", "GenKitAI"],
               },
               {
                 title: "LitWise",
                 description:
-                  "An AI-powered book recommendation platform that delivers personalized suggestions by leveraging machine learning techniques such as K-Means clustering and TF-IDF-based content filtering. Features a beautiful Next.js frontend, FastAPI backend, and real-world Goodreads dataset integration.",
-                image: "/images/project6.png",
+                  "An AI-powered book recommendation platform that delivers personalized suggestions by leveraging machine learning techniques such as K-Means clustering and TF-IDF-based content filtering. Features a beautiful Next.js frontend, FastAPI backend and real-world Goodreads dataset integration.",
+                image: "/images/litwise.png",
                 link: "https://github.com/harshagar12/LitWise",
                 tech: [
                   "Next.js","React","TypeScript","Tailwind CSS","FastAPI","Python","Pandas","Scikit-learn"],
@@ -577,16 +584,16 @@ export default function Portfolio() {
               {
                 title: "BlogWave",
                 description:
-                  "A full-stack blogging platform enabling users to create, share, and explore diverse content. Built with Node.js, Express.js, MySQL, and modern web technologies.",
-                image: "/images/project1.png",
+                  "A full-stack blogging platform enabling users to create, share and explore diverse content. Built with Node.js, Express.js, MySQL and modern web technologies.",
+                image: "/images/blogwave.png",
                 link: "https://github.com/harshagar12/blog_wave",
                 tech: ["Node.js", "Express.js", "MySQL", "JavaScript"],
               },
               {
                 title: "Unified AI Tools Hub",
                 description:
-                  "Web application integrating AI Chatbot, Photo Editor, and Text-to-Speech features using Azure Cognitive Services and modern cloud technologies.",
-                image: "/images/project2.png",
+                  "Web application integrating AI Chatbot, Photo Editor and Text-to-Speech features using Azure Cognitive Services and modern cloud technologies.",
+                image: "/images/aitoolshub.png",
                 link: "https://github.com/harshagar12/ai-tools-hub",
                 tech: ["Streamlit", "Azure", "MongoDB", "Python"],
               },
@@ -594,7 +601,7 @@ export default function Portfolio() {
                 title: "SideView: YouTube Extension",
                 description:
                   "Chrome extension that enhances YouTube viewing by displaying video descriptions and comments in a resizable side panel while keeping the video visible.",
-                image: "/images/project3.png",
+                image: "/images/ytsideview.png",
                 link: "https://github.com/harshagar12/SideView",
                 tech: ["JavaScript", "Chrome APIs", "DOM Manipulation"],
               },
@@ -602,7 +609,7 @@ export default function Portfolio() {
                 title: "Telegram Home Automation",
                 description:
                   "IoT-based home automation system using Telegram as control interface. Features motion detection and remote control of lights and appliances.",
-                image: "/images/project4.jpg",
+                image: "/images/homeautomation.jpg",
                 link: "https://github.com/harshagar12/Home-Automation",
                 tech: ["ESP32", "IoT", "Telegram API", "C++"],
               },
@@ -751,7 +758,7 @@ export default function Portfolio() {
                 institution: "Jodhpur Institute of Engineering and Technology",
                 duration: "2023 - 2027",
                 description:
-                  "Pursuing computer science with focus on Software development, Artificial Intelligence, and Web technologies.",
+                  "Pursuing computer science with focus on Software development, Artificial Intelligence and Web technologies.",
                 achievements: [
                   "CGPA: 9.43/10",
                   "Silver Medal (Class Topper 2nd Sem)",
