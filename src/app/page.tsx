@@ -18,6 +18,24 @@ import {
   Mail,
   Sun,
   Moon,
+  ChevronUp,
+  Terminal,
+  Coffee,
+  FileCode,
+  Globe,
+  Cpu,
+  Database,
+  GitGraph,
+  Atom,
+  MessageSquare,
+  Users,
+  Puzzle,
+  Clock,
+  RefreshCcw,
+  Crown,
+  Brain,
+  Palette,
+  Smartphone,
 } from "lucide-react"
 import Image from "next/image"
 
@@ -25,10 +43,25 @@ export default function Portfolio() {
   const [activeSection, setActiveSection] = useState("home")
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrollY, setScrollY] = useState(0)
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [cursorVariant, setCursorVariant] = useState("default")
+  const mousePosition = useRef({ x: 0, y: 0 })
   const [isDarkMode, setIsDarkMode] = useState(true)
   const skillsRef = useRef<HTMLDivElement>(null)
+  
+  // --- New features state ---
+  const [activeCategory, setActiveCategory] = useState("All")
+  const [showScrollTop, setShowScrollTop] = useState(false)
+  
+  // Typing effect state
+  const [typingText, setTypingText] = useState("")
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [loopNum, setLoopNum] = useState(0)
+  const [typingSpeed, setTypingSpeed] = useState(150)
+  
+  // 3D Tilt state
+  const [tiltStyle, setTiltStyle] = useState({})
+  
+  const roles = ["Third-year CSE student", "Full Stack Developer", "AI/ML Enthusiast", "Problem Solver"]
+
 
   // --- Indicator state ---
   const navRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({})
@@ -91,15 +124,7 @@ export default function Portfolio() {
     setIsDarkMode(!isDarkMode)
   }
 
-  // Mouse tracking for cursor follower
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY })
-    }
 
-    window.addEventListener("mousemove", handleMouseMove)
-    return () => window.removeEventListener("mousemove", handleMouseMove)
-  }, [])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -143,40 +168,247 @@ export default function Portfolio() {
     { id: "education", label: "Education", icon: GraduationCap },
   ]
 
+  // --- New Feature Effects ---
+
+  // Typing Effect
+  useEffect(() => {
+    const handleTyping = () => {
+      const i = loopNum % roles.length
+      const fullText = roles[i]
+      
+      setTypingText(isDeleting 
+        ? fullText.substring(0, typingText.length - 1) 
+        : fullText.substring(0, typingText.length + 1)
+      )
+
+      setTypingSpeed(isDeleting ? 30 : 150)
+
+      if (!isDeleting && typingText === fullText) {
+        setTimeout(() => setIsDeleting(true), 1500)
+      } else if (isDeleting && typingText === "") {
+        setIsDeleting(false)
+        setLoopNum(loopNum + 1)
+      }
+    }
+
+    const timer = setTimeout(handleTyping, typingSpeed)
+    return () => clearTimeout(timer)
+  }, [typingText, isDeleting, loopNum])
+
+  // Scroll to Top visibility
+  useEffect(() => {
+    const checkScrollTop = () => {
+      if (!showScrollTop && window.scrollY > 400) {
+        setShowScrollTop(true)
+      } else if (showScrollTop && window.scrollY <= 400) {
+        setShowScrollTop(false)
+      }
+    }
+    window.addEventListener("scroll", checkScrollTop)
+    return () => window.removeEventListener("scroll", checkScrollTop)
+  }, [showScrollTop])
+
+  // 3D Tilt Handlers
+  const handleTiltMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect()
+    const x = (e.clientX - left - width / 2) / 25
+    const y = (e.clientY - top - height / 2) / 25
+    setTiltStyle({ transform: `perspective(1000px) rotateX(${-y}deg) rotateY(${x}deg) scale(1.05)` })
+  }
+
+  const handleTiltLeave = () => {
+    setTiltStyle({ transform: `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)` })
+  }
+
+  // Scroll to Top action
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
+
+  // Project Filtering Logic
+  const categories = ["All", "Web App", "AI/ML", "IoT", "Chrome Extension"] 
+  
+  // Note: We'll modify the projects array to include categories, 
+  // or infer them from tech/description. Ideally, we add a 'category' field.
+  // For now, let's infer or just use the whole list if 'All'.
+  // Since we can't easily modify the const array in the return, let's assume we filter inside the render.
+
+
+  // --- Network Background Animation ---
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
+
+    let animationFrameId: number
+    let width = window.innerWidth
+    let height = window.innerHeight
+
+    canvas.width = width
+    canvas.height = height
+
+    const particles: Particle[] = []
+    const particleCount = Math.floor((width * height) / 9000) // Dynamic density (higher frequency)
+    const connectionDistance = 120
+    const mouseDistance = 150
+
+    class Particle {
+      x: number
+      y: number
+      vx: number
+      vy: number
+      size: number
+
+      constructor() {
+        this.x = Math.random() * width
+        this.y = Math.random() * height
+        this.vx = (Math.random() - 0.5) * 0.3 // Sluggish movement
+        this.vy = (Math.random() - 0.5) * 0.3
+        this.size = Math.random() * 1.5 + 0.5 // Smaller particles
+      }
+
+      update() {
+        this.x += this.vx
+        this.y += this.vy
+
+        // Bounce off edges
+        if (this.x < 0 || this.x > width) this.vx *= -1
+        if (this.y < 0 || this.y > height) this.vy *= -1
+      }
+
+      draw() {
+        if (!ctx) return
+        ctx.beginPath()
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2)
+        ctx.fillStyle = isDarkMode ? "rgba(56, 189, 248, 0.3)" : "rgba(2, 132, 199, 0.3)" // Sky Blue (Dark & Light)
+        ctx.fill()
+      }
+    }
+
+    const init = () => {
+      particles.length = 0
+      for (let i = 0; i < particleCount; i++) {
+        particles.push(new Particle())
+      }
+    }
+
+    const animate = () => {
+      if (!ctx) return
+      ctx.clearRect(0, 0, width, height)
+      
+      // Update and draw particles
+      particles.forEach(particle => {
+        particle.update()
+        particle.draw()
+      })
+
+      // Draw connections
+      for (let i = 0; i < particles.length; i++) {
+        const p1 = particles[i]
+        
+        // Connect to mouse
+        const dxMouse = mousePosition.current.x - p1.x
+        const dyMouse = mousePosition.current.y - p1.y
+        const distMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse)
+
+        if (distMouse < mouseDistance) {
+            ctx.beginPath()
+            ctx.strokeStyle = isDarkMode ? `rgba(56, 189, 248, ${0.5 * (1 - distMouse / mouseDistance)})` : `rgba(2, 132, 199, ${0.5 * (1 - distMouse / mouseDistance)})` // Sky 600 for Light Mode
+            ctx.lineWidth = 0.6
+            ctx.moveTo(p1.x, p1.y)
+            ctx.lineTo(mousePosition.current.x, mousePosition.current.y)
+            ctx.stroke()
+        }
+
+        // Connect to other particles
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j]
+          const dx = p1.x - p2.x
+          const dy = p1.y - p2.y
+          const distance = Math.sqrt(dx * dx + dy * dy)
+
+          if (distance < connectionDistance) {
+            ctx.beginPath()
+            ctx.strokeStyle = isDarkMode ? `rgba(129, 140, 248, ${0.15 * (1 - distance / connectionDistance)})` : `rgba(79, 70, 229, ${0.15 * (1 - distance / connectionDistance)})` // Indigo 600 for Light Mode
+            ctx.lineWidth = 0.3
+            ctx.moveTo(p1.x, p1.y)
+            ctx.lineTo(p2.x, p2.y)
+            ctx.stroke()
+          }
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(animate)
+    }
+
+    const handleResize = () => {
+      width = window.innerWidth
+      height = window.innerHeight
+      canvas.width = width
+      canvas.height = height
+      init()
+    }
+
+    const handleMouseMove = (e: MouseEvent) => {
+      mousePosition.current = { x: e.clientX, y: e.clientY }
+    }
+
+    init()
+    animate()
+    window.addEventListener("resize", handleResize)
+    window.addEventListener("mousemove", handleMouseMove)
+
+    return () => {
+      window.removeEventListener("resize", handleResize)
+      window.removeEventListener("mousemove", handleMouseMove)
+      cancelAnimationFrame(animationFrameId)
+    }
+  }, [isDarkMode])
+
   const socialLinks = [
     { href: "https://github.com/harshagar12", icon: Github, label: "GitHub" },
     { href: "https://www.linkedin.com/in/harsh-agarwal-a31b4528b", icon: Linkedin, label: "LinkedIn" },
     { href: "https://x.com/HarshAgar12", icon: Twitter, label: "Twitter" },
   ]
 
+  const technicalSkills = [
+    { name: "Python", icon: Terminal },
+    { name: "Java", icon: Coffee },
+    { name: "JavaScript", icon: FileCode },
+    { name: "HTML/CSS", icon: Globe },
+    { name: "IoT", icon: Cpu },
+    { name: "MySQL", icon: Database },
+    { name: "Git", icon: GitGraph },
+    { name: "React", icon: Atom },
+  ]
+
+  const softSkills = [
+    { name: "Communication", icon: MessageSquare },
+    { name: "Teamwork", icon: Users },
+    { name: "Problem Solving", icon: Puzzle },
+    { name: "Time Management", icon: Clock },
+    { name: "Adaptability", icon: RefreshCcw },
+    { name: "Leadership", icon: Crown },
+    { name: "Critical Thinking", icon: Brain },
+    { name: "Creativity", icon: Palette },
+  ]
+
   return (
     <div className="portfolio-container">
       {/* Animated Background */}
-      <div className="animated-background">
-        <div className="bg-animation">
-          {[...Array(50)].map((_, i) => (
-            <div
-              key={i}
-              className="particle"
-              style={{
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 20}s`,
-                animationDuration: `${15 + Math.random() * 10}s`,
-              }}
-            />
-          ))}
-        </div>
-        <div className="gradient-overlay"></div>
-      </div>
-
-      {/* Cursor Follower */}
-      <div
-        className={`cursor-follower ${cursorVariant}`}
-        style={{
-          left: `${mousePosition.x}px`,
-          top: `${mousePosition.y}px`,
-        }}
+      {/* Animated Background */}
+      <canvas
+        ref={canvasRef}
+        className="animated-background"
+        style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }}
       />
+
+
+
 
       {/* Enhanced Navigation */}
       <nav className={`navbar ${scrollY > 50 ? "scrolled" : ""}`}>
@@ -220,7 +452,7 @@ export default function Portfolio() {
       {/* Social links for mobile/tablet only */}
       <div className="nav-social-mobile">
         {socialLinks.map((social) => {
-          const Icon = social.icon;
+          const Icon = social.icon
           return (
             <a
               key={social.label}
@@ -232,12 +464,32 @@ export default function Portfolio() {
             >
               <Icon size={16} />
             </a>
-          );
+          )
         })}
       </div>
+
     </div>
 
     <div className="nav-actions">
+      {/* Desktop Social Links */}
+      <div className="nav-social">
+        {socialLinks.map((social) => {
+          const Icon = social.icon
+          return (
+            <a
+              key={social.label}
+              href={social.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="nav-social-link"
+              aria-label={social.label}
+            >
+              <Icon size={18} />
+            </a>
+          )
+        })}
+      </div>
+
       {/* Desktop theme toggle - hidden on mobile */}
       <button
         onClick={toggleTheme}
@@ -287,37 +539,39 @@ export default function Portfolio() {
         <div className="hero-content">
           <div className="hero-left">
             <div className="profile-container">
-              <div className="profile-image-wrapper">
-                <Image
-                  src="/images/profile.jpg"
-                  alt="Harsh Agarwal"
-                  width={350}
-                  height={350}
-                  className="profile-image"
-                />
-                <div className="tech-orbit">
-                  <div className="tech-icon tech-1">⚛️</div>
-                  <div className="tech-icon tech-2">🐍</div>
-                  <div className="tech-icon tech-3">📱</div>
-                  <div className="tech-icon tech-4">☕</div>
+                <div 
+                  className="profile-image-wrapper tilt-card"
+                  onMouseMove={handleTiltMove}
+                  onMouseLeave={handleTiltLeave}
+                  style={tiltStyle}
+                >
+                  <Image
+                    src="/images/profile.jpg"
+                    alt="Harsh Agarwal"
+                    width={350}
+                    height={350}
+                    className="profile-image"
+                  />
+                  <div className="tech-orbit">
+                    <div className="tech-icon tech-1"><Atom size={24} /></div>
+                    <div className="tech-icon tech-2"><Terminal size={24} /></div>
+                    <div className="tech-icon tech-3"><Smartphone size={24} /></div>
+                    <div className="tech-icon tech-4"><Coffee size={24} /></div>
+                  </div>
                 </div>
-              </div>
             </div>
           </div>
 
           <div className="hero-right">
             <div className="hero-text">
-              <div className="text-background-balls">
-                <div className="bouncing-ball ball-1"></div>
-                <div className="bouncing-ball ball-2"></div>
-                <div className="bouncing-ball ball-3"></div>
-                <div className="bouncing-ball ball-4"></div>
-                <div className="bouncing-ball ball-5"></div>
-              </div>
+
               <h1 className="hero-title">
                 <span className="title-line">Hi, I&apos;m</span>
                 <span className="title-name">Harsh Agarwal</span>
-                <span className="title-role">Computer Science Student & Developer</span>
+                <span className="title-role">
+                  {typingText}
+                  <span className="typing-cursor"></span>
+                </span>
               </h1>
 
               <p className="hero-description">
@@ -345,8 +599,6 @@ export default function Portfolio() {
                 <button
                   onClick={() => scrollToSection("projects")}
                   className="btn btn-primary"
-                  onMouseEnter={() => setCursorVariant("hover")}
-                  onMouseLeave={() => setCursorVariant("default")}
                 >
                   View My Work
                 </button>
@@ -355,8 +607,6 @@ export default function Portfolio() {
                   className="btn btn-secondary"
                   target="_blank"
                   rel="noopener noreferrer"
-                  onMouseEnter={() => setCursorVariant("hover")}
-                  onMouseLeave={() => setCursorVariant("default")}
                 >
                   Resume
                 </a>
@@ -368,8 +618,7 @@ export default function Portfolio() {
         <div
           className="scroll-indicator"
           onClick={() => scrollToSection("about")}
-          onMouseEnter={() => setCursorVariant("hover")}
-          onMouseLeave={() => setCursorVariant("default")}
+
         >
           <ChevronDown className="scroll-arrow" />
         </div>
@@ -484,62 +733,52 @@ export default function Portfolio() {
           </div>
 
           <div className="skills-container">
-            <div className="skills-grid">
-              <div className="skills-category">
-                <h3 className="skills-category-title">
+            <div className="skills-container">
+              {/* Technical Skills Marquee */}
+              <div className="skills-category" style={{marginBottom: '4rem', width: '100%'}}>
+                <h3 className="skills-category-title" style={{justifyContent: 'center', marginBottom: '2rem'}}>
                   <Code className="category-icon" />
                   Technical Skills
                 </h3>
-                <div className="skills-cards">
-                  {[
-                    { name: "Python", icon: "🐍" },
-                    { name: "Java", icon: "☕" },
-                    { name: "JavaScript", icon: "📜" },
-                    { name: "HTML/CSS", icon: "🌐" },
-                    { name: "IoT", icon: "🔌" },
-                    { name: "MySQL", icon: "🗄️" },
-                    { name: "Git", icon: "📊" },
-                    { name: "React", icon: "⚛️" },
-                  ].map((skill, index) => (
-                    <div
-                      key={skill.name}
-                      className="skill-item"
-                      onMouseEnter={() => setCursorVariant("hover")}
-                      onMouseLeave={() => setCursorVariant("default")}
-                    >
-                      <div className="skill-icon">{skill.icon}</div>
-                      <div className="skill-name">{skill.name}</div>
-                    </div>
-                  ))}
+                <div className="skills-marquee-container">
+                  <div className="skills-marquee">
+                    {[...technicalSkills, ...technicalSkills].map((skill, index) => (
+                      <div
+                        key={`tech-${index}`}
+                        className="skill-item"
+                        style={{minWidth: '150px'}}
+                      >
+                        <div className="skill-icon">
+                          <skill.icon size={32} />
+                        </div>
+                        <div className="skill-name">{skill.name}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              <div className="skills-category">
-                <h3 className="skills-category-title">
+              {/* Soft Skills Marquee */}
+              <div className="skills-category" style={{width: '100%'}}>
+                <h3 className="skills-category-title" style={{justifyContent: 'center', marginBottom: '2rem'}}>
                   <User className="category-icon" />
                   Soft Skills
                 </h3>
-                <div className="skills-cards">
-                  {[
-                    { name: "Communication", icon: "💬" },
-                    { name: "Teamwork", icon: "🤝" },
-                    { name: "Problem Solving", icon: "🧩" },
-                    { name: "Time Management", icon: "⏰" },
-                    { name: "Adaptability", icon: "🔄" },
-                    { name: "Leadership", icon: "👑" },
-                    { name: "Critical Thinking", icon: "🧠" },
-                    { name: "Creativity", icon: "🎨" },
-                  ].map((skill, index) => (
-                    <div
-                      key={skill.name}
-                      className="skill-item"
-                      onMouseEnter={() => setCursorVariant("hover")}
-                      onMouseLeave={() => setCursorVariant("default")}
-                    >
-                      <div className="skill-icon">{skill.icon}</div>
-                      <div className="skill-name">{skill.name}</div>
-                    </div>
-                  ))}
+                <div className="skills-marquee-container">
+                  <div className="skills-marquee" style={{animationDirection: "reverse"}}>
+                    {[...softSkills, ...softSkills].map((skill, index) => (
+                      <div
+                        key={`soft-${index}`}
+                        className="skill-item"
+                        style={{minWidth: '150px'}}
+                      >
+                        <div className="skill-icon">
+                          <skill.icon size={32} />
+                        </div>
+                        <div className="skill-name">{skill.name}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -555,6 +794,18 @@ export default function Portfolio() {
             <div className="section-line"></div>
           </div>
 
+          <div className="project-filters">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setActiveCategory(category)}
+                className={`filter-btn ${activeCategory === category ? "active" : ""}`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
           <div className="projects-grid">
             {[
               {
@@ -563,6 +814,7 @@ export default function Portfolio() {
                 image: "/images/studymate.png",
                 link: "https://github.com/harshagar12/StudyMate",
                 tech: ["TypeScript", "React", "Supabase", "Google Gemini API", "Node.js", "Tailwind CSS"],
+                category: "Web App"
               },
               {
                 title: "Literate",
@@ -571,6 +823,7 @@ export default function Portfolio() {
                 image: "/images/literate.png",
                 link: "https://github.com/harshagar12/Literate",
                 tech: ["TypeScript", "Next.js", "FireStore", "GenKitAI"],
+                category: "AI/ML"
               },
               {
                 title: "LitWise",
@@ -580,6 +833,7 @@ export default function Portfolio() {
                 link: "https://github.com/harshagar12/LitWise",
                 tech: [
                   "Next.js","React","TypeScript","Tailwind CSS","FastAPI","Python","Pandas","Scikit-learn"],
+                category: "AI/ML"
               }, 
               {
                 title: "BlogWave",
@@ -588,6 +842,7 @@ export default function Portfolio() {
                 image: "/images/blogwave.png",
                 link: "https://github.com/harshagar12/blog_wave",
                 tech: ["Node.js", "Express.js", "MySQL", "JavaScript"],
+                category: "Web App"
               },
               {
                 title: "Unified AI Tools Hub",
@@ -596,6 +851,7 @@ export default function Portfolio() {
                 image: "/images/aitoolshub.png",
                 link: "https://github.com/harshagar12/ai-tools-hub",
                 tech: ["Streamlit", "Azure", "MongoDB", "Python"],
+                category: "AI/ML"
               },
               {
                 title: "SideView: YouTube Extension",
@@ -604,6 +860,7 @@ export default function Portfolio() {
                 image: "/images/ytsideview.png",
                 link: "https://github.com/harshagar12/SideView",
                 tech: ["JavaScript", "Chrome APIs", "DOM Manipulation"],
+                category: "Chrome Extension"
               },
               {
                 title: "Telegram Home Automation",
@@ -612,14 +869,14 @@ export default function Portfolio() {
                 image: "/images/homeautomation.jpg",
                 link: "https://github.com/harshagar12/Home-Automation",
                 tech: ["ESP32", "IoT", "Telegram API", "C++"],
+                category: "IoT"
               },
-            ].map((project, index) => (
+            ].filter(project => activeCategory === "All" || project.category === activeCategory)
+             .map((project, index) => (
               <div
                 key={index}
                 className="project-card"
                 style={{ animationDelay: `${index * 0.15}s` }}
-                onMouseEnter={() => setCursorVariant("hover")}
-                onMouseLeave={() => setCursorVariant("default")}
               >
                 <div className="project-image">
                   <Image
@@ -635,8 +892,6 @@ export default function Portfolio() {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="project-link"
-                      onMouseEnter={() => setCursorVariant("hover")}
-                      onMouseLeave={() => setCursorVariant("default")}
                     >
                       <ExternalLink size={20} />
                     </a>
@@ -667,7 +922,7 @@ export default function Portfolio() {
             <div className="section-line"></div>
           </div>
 
-          <div className="accomplishments-timeline">
+          <div className="accomplishments-grid">
             {[
               {
                 title: "Class Topper - Silver Medal",
@@ -713,29 +968,21 @@ export default function Portfolio() {
             ].map((accomplishment, index) => (
               <div
                 key={index}
-                className="timeline-item"
-                style={{ animationDelay: `${index * 0.2}s` }}
-                onMouseEnter={() => setCursorVariant("hover")}
-                onMouseLeave={() => setCursorVariant("default")}
+                className="accomplishment-card"
+                style={{ animationDelay: `${index * 0.15}s` }}
               >
-                <div className="timeline-marker">
-                  <div className="timeline-dot"></div>
-                  <div className="timeline-year">{accomplishment.year}</div>
+                <div className="accomplishment-image-container">
+                  <Image
+                    src={accomplishment.image || "/placeholder.svg"}
+                    alt={accomplishment.title}
+                    fill
+                    className="accomplishment-img"
+                  />
+                  <span className="year-badge">{accomplishment.year}</span>
                 </div>
-                <div className="timeline-content">
-                  <div className="accomplishment-image">
-                    <Image
-                      src={accomplishment.image || "/placeholder.svg"}
-                      alt={accomplishment.title}
-                      width={200}
-                      height={150}
-                      className="accomplishment-img"
-                    />
-                  </div>
-                  <div className="accomplishment-details">
-                    <h3 className="accomplishment-title">{accomplishment.title}</h3>
-                    <p className="accomplishment-description">{accomplishment.description}</p>
-                  </div>
+                <div className="accomplishment-content">
+                  <h3 className="accomplishment-title">{accomplishment.title}</h3>
+                  <p className="accomplishment-description">{accomplishment.description}</p>
                 </div>
               </div>
             ))}
@@ -787,8 +1034,6 @@ export default function Portfolio() {
                 key={index}
                 className="education-card"
                 style={{ animationDelay: `${index * 0.2}s` }}
-                onMouseEnter={() => setCursorVariant("hover")}
-                onMouseLeave={() => setCursorVariant("default")}
               >
                 <div className="education-image">
                   <Image
@@ -822,7 +1067,7 @@ export default function Portfolio() {
       <footer className="footer">
         <div className="container">
           <div className="footer-content">
-            <p>&copy; 2024 Harsh Agarwal. All rights reserved.</p>
+            <p>&copy; Harsh Agarwal. All rights reserved.</p>
             <div className="footer-social">
               {socialLinks.map((social) => {
                 const Icon = social.icon
@@ -832,8 +1077,6 @@ export default function Portfolio() {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onMouseEnter={() => setCursorVariant("hover")}
-                    onMouseLeave={() => setCursorVariant("default")}
                   >
                     <Icon size={18} />
                   </a>
@@ -843,6 +1086,16 @@ export default function Portfolio() {
           </div>
         </div>
       </footer>
+
+      {/* Scroll to Top Button */}
+      <button
+        className={`scroll-to-top ${showScrollTop ? "visible" : ""}`}
+        onClick={scrollToTop}
+        aria-label="Scroll to top"
+      >
+        <ChevronUp size={24} />
+      </button>
+
     </div>
   )
 }
