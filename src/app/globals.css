@@ -239,7 +239,6 @@ body {
   background: none;
   border: none;
   color: var(--text-secondary);
-  cursor: none;
   border-radius: 25px;
   transition: all 0.3s ease;
   font-size: 0.85rem;
@@ -292,7 +291,6 @@ body {
   color: var(--text-secondary);
   transition: all 0.3s ease;
   text-decoration: none;
-  cursor: none;
 }
 
 [data-theme="light"] .nav-social-link {
@@ -324,7 +322,6 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 50%;
   color: var(--text-secondary);
-  cursor: none;
   transition: all 0.3s ease;
 }
 
@@ -726,7 +723,6 @@ body {
   border: none;
   border-radius: 50px;
   font-weight: 600;
-  cursor: none;
   transition: all 0.3s ease;
   text-decoration: none;
   display: inline-flex;
@@ -2452,7 +2448,6 @@ body {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
-  cursor: none;
   transition: all 0.3s ease;
   font-weight: 500;
 }
