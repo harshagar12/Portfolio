@@ -36,8 +36,179 @@ import {
   Brain,
   Palette,
   Smartphone,
+  Trophy,
+  Target,
+  Zap,
 } from "lucide-react"
 import Image from "next/image"
+
+// LeetCode Icon Component
+const LeetCodeIcon = ({ size = 24, className = "" }: { size?: number; className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M12 13h7.5" />
+    <path d="M9.424 7.268l4.999 -4.999" />
+    <path d="M16.633 16.644l-2.402 2.415a3.189 3.189 0 0 1 -4.524 0l-3.77 -3.787a3.223 3.223 0 0 1 0 -4.544l3.77 -3.787a3.19 3.19 0 0 1 4.524 0l2.302 2.313" />
+  </svg>
+)
+
+const LeetCodeModal = ({ isOpen, onClose, username = "harsh_agar_12" }: { isOpen: boolean; onClose: () => void; username?: string }) => {
+    const [data, setData] = useState<any>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+  
+    useEffect(() => {
+      if (isOpen && !data) {
+        setLoading(true);
+        // Using external API to avoid server-side route issues with static export
+        fetch(`https://leetcode-stats-api.herokuapp.com/${username}`)
+          .then((res) => {
+            if (!res.ok) throw new Error("Failed to fetch data");
+            return res.json();
+          })
+          .then((data) => {
+             console.log("LeetCode Data:", data)
+             if (data.status === 'error') {
+                 throw new Error(data.message || "Failed to fetch data");
+             }
+             setData(data)
+          })
+          .catch((err) => setError(err.message))
+          .finally(() => setLoading(false));
+      }
+    }, [isOpen, username, data]);
+  
+    if (!isOpen) return null;
+  
+    return (
+      <div className="leetcode-modal-overlay" onClick={onClose}>
+        <div 
+            className="leetcode-modal-content"
+            onClick={e => e.stopPropagation()}
+        >
+          <button 
+            onClick={onClose}
+            className="leetcode-close-btn"
+          >
+           <X size={24} />
+          </button>
+  
+          <div className="leetcode-header">
+            <div className="leetcode-icon-wrapper">
+               <LeetCodeIcon className="text-[#ffa116]" size={32} />
+            </div>
+            <div>
+                <h3 className="text-xl font-bold text-white">LeetCode Stats</h3>
+                <p className="text-slate-400 text-sm">@{username}</p>
+            </div>
+          </div>
+  
+          {loading ? (
+            <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#ffa116]"></div>
+            </div>
+          ) : error ? (
+            <div className="text-red-400 text-center py-4">{error}</div>
+          ) : data ? (
+            <div className="leetcode-body">
+                 {/* Rank & Total */}
+                 <div className="leetcode-grid">
+                    <div className="leetcode-stat-box">
+                        <div className="leetcode-stat-label">Global Ranking</div>
+                        <div className="leetcode-stat-value">
+                            {parseInt(data.ranking).toLocaleString()}
+                        </div>
+                    </div>
+                    <div className="leetcode-stat-box">
+                        <div className="leetcode-stat-label">Total Solved</div>
+                        <div className="leetcode-stat-value">
+                            {data.totalSolved}
+                        </div>
+                    </div>
+                 </div>
+  
+                 {/* Progress Bars */}
+                 <div className="leetcode-progress-container">
+                    <div className="leetcode-progress-item">
+                        <div className="leetcode-progress-header">
+                            <span className="text-emerald-400">Easy</span>
+                            <span className="text-slate-300">
+                                {data.easySolved} 
+                                <span className="text-slate-500 text-xs ml-1">
+                                     / {data.totalEasy}
+                                </span>
+                            </span>
+                        </div>
+                        <div className="leetcode-progress-track">
+                            <div 
+                                className="leetcode-progress-fill bg-emerald-400"
+                                style={{ width: `${(data.easySolved / data.totalEasy * 100) || 0}%`, backgroundColor: '#34d399' }}
+                            />
+                        </div>
+                    </div>
+  
+                    <div className="leetcode-progress-item">
+                        <div className="leetcode-progress-header">
+                            <span className="text-amber-400">Medium</span>
+                            <span className="text-slate-300">
+                                {data.mediumSolved}
+                                <span className="text-slate-500 text-xs ml-1">
+                                     / {data.totalMedium}
+                                </span>
+                            </span>
+                        </div>
+                        <div className="leetcode-progress-track">
+                            <div 
+                                className="leetcode-progress-fill bg-amber-400"
+                                style={{ width: `${(data.mediumSolved / data.totalMedium * 100) || 0}%`, backgroundColor: '#fbbf24' }}
+                            />
+                        </div>
+                    </div>
+  
+                    <div className="leetcode-progress-item">
+                        <div className="leetcode-progress-header">
+                            <span className="text-rose-400">Hard</span>
+                            <span className="text-slate-300">
+                                {data.hardSolved}
+                                <span className="text-slate-500 text-xs ml-1">
+                                     / {data.totalHard}
+                                </span>
+                            </span>
+                        </div>
+                        <div className="leetcode-progress-track">
+                            <div 
+                                className="leetcode-progress-fill bg-rose-400"
+                                style={{ width: `${(data.hardSolved / data.totalHard * 100) || 0}%`, backgroundColor: '#fb7185' }}
+                            />
+                        </div>
+                    </div>
+                 </div>
+  
+                 <a 
+                    href={`https://leetcode.com/${username}/`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="leetcode-btn-primary"
+                 >
+                    <span>View Full Profile</span>
+                    <ExternalLink size={16} />
+                 </a>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    );
+  };
 
 export default function Portfolio() {
   const [activeSection, setActiveSection] = useState("home")
@@ -369,10 +540,23 @@ export default function Portfolio() {
     }
   }, [isDarkMode])
 
+  const [isLeetCodeModalOpen, setIsLeetCodeModalOpen] = useState(false);
+
+  // Social Links updated
   const socialLinks = [
     { href: "https://github.com/harshagar12", icon: Github, label: "GitHub" },
     { href: "https://www.linkedin.com/in/harsh-agarwal-a31b4528b", icon: Linkedin, label: "LinkedIn" },
     { href: "https://x.com/HarshAgar12", icon: Twitter, label: "Twitter" },
+    { 
+        href: "#", 
+        icon: LeetCodeIcon, 
+        label: "LeetCode", 
+        onClick: (e: React.MouseEvent) => {
+            e.preventDefault();
+            console.log("LeetCode clicked");
+            setIsLeetCodeModalOpen(true);
+        }
+    },
   ]
 
   const technicalSkills = [
@@ -453,6 +637,21 @@ export default function Portfolio() {
       <div className="nav-social-mobile">
         {socialLinks.map((social) => {
           const Icon = social.icon
+          
+          if (social.onClick) {
+             return (
+               <button
+                  key={social.label}
+                  onClick={social.onClick as any}
+                  className="nav-social-link"
+                  aria-label={social.label}
+                  style={{ cursor: 'pointer' }}
+               >
+                 <Icon size={16} />
+               </button>
+             )
+          }
+
           return (
             <a
               key={social.label}
@@ -475,6 +674,21 @@ export default function Portfolio() {
       <div className="nav-social">
         {socialLinks.map((social) => {
           const Icon = social.icon
+          
+          if (social.onClick) {
+            return (
+              <button
+                 key={social.label}
+                 onClick={social.onClick as any}
+                 className="nav-social-link"
+                 aria-label={social.label}
+                 style={{ cursor: 'pointer' }}
+              >
+                <Icon size={18} />
+              </button>
+            )
+          }
+          
           return (
             <a
               key={social.label}
@@ -1071,6 +1285,20 @@ export default function Portfolio() {
             <div className="footer-social">
               {socialLinks.map((social) => {
                 const Icon = social.icon
+                
+                if (social.onClick) {
+                    return (
+                      <button
+                         key={social.label}
+                         onClick={social.onClick as any}
+                         style={{ color: 'inherit', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
+                         aria-label={social.label}
+                      >
+                        <Icon size={18} />
+                      </button>
+                    )
+                 }
+
                 return (
                   <a
                     key={social.label}
@@ -1086,6 +1314,11 @@ export default function Portfolio() {
           </div>
         </div>
       </footer>
+
+      <LeetCodeModal 
+        isOpen={isLeetCodeModalOpen} 
+        onClose={() => setIsLeetCodeModalOpen(false)} 
+      />
 
       {/* Scroll to Top Button */}
       <button
