@@ -1291,7 +1291,7 @@ export default function Portfolio() {
                       <button
                          key={social.label}
                          onClick={social.onClick as any}
-                         style={{ color: 'inherit', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
+                         className=""
                          aria-label={social.label}
                       >
                         <Icon size={18} />
