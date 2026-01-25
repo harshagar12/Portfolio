@@ -41,6 +41,8 @@ import {
   Zap,
 } from "lucide-react"
 import Image from "next/image"
+import { collection, getDocs, doc, getDoc, query, orderBy } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 // LeetCode Icon Component
 const LeetCodeIcon = ({ size = 24, className = "" }: { size?: number; className?: string }) => (
@@ -221,6 +223,40 @@ export default function Portfolio() {
   // --- New features state ---
   const [activeCategory, setActiveCategory] = useState("All")
   const [showScrollTop, setShowScrollTop] = useState(false)
+  
+  // Firebase Data State
+  const [projects, setProjects] = useState<any[]>([]);
+  const [accomplishments, setAccomplishments] = useState<any[]>([]);
+  const [resumeUrl, setResumeUrl] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch Projects
+        const projectsQuery = query(collection(db, "projects"), orderBy("order", "asc"));
+        const projectsSnap = await getDocs(projectsQuery);
+        if (!projectsSnap.empty) {
+            setProjects(projectsSnap.docs.map(d => d.data()));
+        }
+
+        // Fetch Accomplishments
+        const accQuery = query(collection(db, "accomplishments"), orderBy("order", "asc"));
+        const accSnap = await getDocs(accQuery);
+        if (!accSnap.empty) {
+            setAccomplishments(accSnap.docs.map(d => d.data()));
+        }
+
+        // Fetch Resume
+        const resumeSnap = await getDoc(doc(db, "settings", "resume"));
+        if (resumeSnap.exists()) {
+            setResumeUrl(resumeSnap.data().url);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  }, []);
   
   // Typing effect state
   const [typingText, setTypingText] = useState("")
@@ -817,7 +853,7 @@ export default function Portfolio() {
                   View My Work
                 </button>
                 <a
-                  href="/Resume.pdf"
+                  href={resumeUrl || "/Resume.pdf"}
                   className="btn btn-secondary"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -1021,109 +1057,49 @@ export default function Portfolio() {
           </div>
 
           <div className="projects-grid">
-            {[
-              {
-                title: "StudyMate",
-                description: "A Study companion designed to streamline learning and organization. Features a comprehensive resource hub for PDFs and YouTube content, a context-aware AI tutor powered by Google Gemini and a smart rich-text note-taking system. Built with a modern glassmorphism UI for an immersive study experience.",
-                image: "/images/studymate.png",
-                link: "https://github.com/harshagar12/StudyMate",
-                tech: ["TypeScript", "React", "Supabase", "Google Gemini API", "Node.js", "Tailwind CSS"],
-                category: "Web App"
-              },
-              {
-                title: "Literate",
-                description:
-                  "An AI-powered, full-stack reading application that enables users to upload books and interact with a chatbot that answers context-aware questions using a RAG pipeline. Features an intuitive reading interface, integrated note-taking and robust data persistence with Firestore.",
-                image: "/images/literate.png",
-                link: "https://github.com/harshagar12/Literate",
-                tech: ["TypeScript", "Next.js", "FireStore", "GenKitAI"],
-                category: "AI/ML"
-              },
-              {
-                title: "LitWise",
-                description:
-                  "An AI-powered book recommendation platform that delivers personalized suggestions by leveraging machine learning techniques such as K-Means clustering and TF-IDF-based content filtering. Features a beautiful Next.js frontend, FastAPI backend and real-world Goodreads dataset integration.",
-                image: "/images/litwise.png",
-                link: "https://github.com/harshagar12/LitWise",
-                tech: [
-                  "Next.js","React","TypeScript","Tailwind CSS","FastAPI","Python","Pandas","Scikit-learn"],
-                category: "AI/ML"
-              }, 
-              {
-                title: "BlogWave",
-                description:
-                  "A full-stack blogging platform enabling users to create, share and explore diverse content. Built with Node.js, Express.js, MySQL and modern web technologies.",
-                image: "/images/blogwave.png",
-                link: "https://github.com/harshagar12/blog_wave",
-                tech: ["Node.js", "Express.js", "MySQL", "JavaScript"],
-                category: "Web App"
-              },
-              {
-                title: "Unified AI Tools Hub",
-                description:
-                  "Web application integrating AI Chatbot, Photo Editor and Text-to-Speech features using Azure Cognitive Services and modern cloud technologies.",
-                image: "/images/aitoolshub.png",
-                link: "https://github.com/harshagar12/ai-tools-hub",
-                tech: ["Streamlit", "Azure", "MongoDB", "Python"],
-                category: "AI/ML"
-              },
-              {
-                title: "SideView: YouTube Extension",
-                description:
-                  "Chrome extension that enhances YouTube viewing by displaying video descriptions and comments in a resizable side panel while keeping the video visible.",
-                image: "/images/ytsideview.png",
-                link: "https://github.com/harshagar12/SideView",
-                tech: ["JavaScript", "Chrome APIs", "DOM Manipulation"],
-                category: "Chrome Extension"
-              },
-              {
-                title: "Telegram Home Automation",
-                description:
-                  "IoT-based home automation system using Telegram as control interface. Features motion detection and remote control of lights and appliances.",
-                image: "/images/homeautomation.jpg",
-                link: "https://github.com/harshagar12/Home-Automation",
-                tech: ["ESP32", "IoT", "Telegram API", "C++"],
-                category: "IoT"
-              },
-            ].filter(project => activeCategory === "All" || project.category === activeCategory)
-             .map((project, index) => (
-              <div
-                key={index}
-                className="project-card"
-                style={{ animationDelay: `${index * 0.15}s` }}
-              >
-                <div className="project-image">
-                  <Image
-                    src={project.image || "/placeholder.svg"}
-                    alt={project.title}
-                    width={300}
-                    height={200}
-                    className="project-img"
-                  />
-                  <div className="project-overlay">
-                    <a
-                      href={project.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="project-link"
-                    >
-                      <ExternalLink size={20} />
-                    </a>
-                  </div>
+            {projects.length > 0 ? (
+                projects.filter(project => activeCategory === "All" || project.category === activeCategory)
+                .map((project, index) => (
+                <div
+                    key={index}
+                    className="project-card"
+                    style={{ animationDelay: `${index * 0.15}s` }}
+                >
+                    <div className="project-image">
+                    <Image
+                        src={project.image || "/placeholder.svg"}
+                        alt={project.title}
+                        width={300}
+                        height={200}
+                        className="project-img"
+                    />
+                    <div className="project-overlay">
+                        <a
+                        href={project.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="project-link"
+                        >
+                        <ExternalLink size={20} />
+                        </a>
+                    </div>
+                    </div>
+                    <div className="project-content">
+                    <h3 className="project-title">{project.title}</h3>
+                    <p className="project-description">{project.description}</p>
+                    <div className="project-tech">
+                        {project.tech?.map((tech: string) => (
+                        <span key={tech} className="tech-tag">
+                            {tech}
+                        </span>
+                        ))}
+                    </div>
+                    </div>
                 </div>
-                <div className="project-content">
-                  <h3 className="project-title">{project.title}</h3>
-                  <p className="project-description">{project.description}</p>
-                  <div className="project-tech">
-                    {project.tech.map((tech) => (
-                      <span key={tech} className="tech-tag">
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
+                ))
+            ) : (
+                 <div className="col-span-full text-center text-slate-500 py-10">Loading projects...</div>
+            )}
           </div>
         </div>
       </section>
@@ -1137,69 +1113,31 @@ export default function Portfolio() {
           </div>
 
           <div className="accomplishments-grid">
-            {[
-              {
-                title: "Class Topper - Silver Medal",
-                description:
-                  "Awarded Silver Medal and Certificate for being the Class Topper in the 2nd Semester during annual fest Resonance.",
-                image: "/images/accomplishment1.png",
-                year: "2024",
-              },
-              {
-                title: "Runner's Up - Innovate 2025",
-                description:
-                  "Secured 2nd Place in Innovate 2025 Hackathon organized by MNIT Jalandhar, Thapar Institute and Modi Institute.",
-                image: "/images/accomplishment2.png",
-                year: "2025",
-              },
-              {
-                title: "1st Place - Hack-ito 2023",
-                description:
-                  "Developed a prosthetic arm prototype for below elbow amputees using EMG sensors and servo motors.",
-                image: "/images/accomplishment3.png",
-                year: "2023",
-              },
-              {
-                title: "Certificate of Appreciation",
-                description:
-                  "Awarded Certificate of Appreciation and Memento for developing and installing Home Automation System in college.",
-                image: "/images/accomplishment4.png",
-                year: "2024",
-              },
-              {
-                title: "2nd Place - Hack-ito 2024",
-                description: "Improved prosthetic arm prototype with doctor approval and testing with amputees.",
-                image: "/images/accomplishment5.png",
-                year: "2024",
-              },
-              {
-                title: "Top 6 - Launchpad Challenge 2024",
-                description:
-                  "Led team to pitch mobile application connecting local businesses with customers through loyalty rewards.",
-                image: "/images/accomplishment6.png",
-                year: "2024",
-              },
-            ].map((accomplishment, index) => (
-              <div
-                key={index}
-                className="accomplishment-card"
-                style={{ animationDelay: `${index * 0.15}s` }}
-              >
-                <div className="accomplishment-image-container">
-                  <Image
-                    src={accomplishment.image || "/placeholder.svg"}
-                    alt={accomplishment.title}
-                    fill
-                    className="accomplishment-img"
-                  />
-                  <span className="year-badge">{accomplishment.year}</span>
+            {accomplishments.length > 0 ? (
+                accomplishments.map((accomplishment, index) => (
+                <div
+                    key={index}
+                    className="accomplishment-card"
+                    style={{ animationDelay: `${index * 0.15}s` }}
+                >
+                    <div className="accomplishment-image-container">
+                    <Image
+                        src={accomplishment.image || "/placeholder.svg"}
+                        alt={accomplishment.title}
+                        fill
+                        className="accomplishment-img"
+                    />
+                    <span className="year-badge">{accomplishment.year}</span>
+                    </div>
+                    <div className="accomplishment-content">
+                    <h3 className="accomplishment-title">{accomplishment.title}</h3>
+                    <p className="accomplishment-description">{accomplishment.description}</p>
+                    </div>
                 </div>
-                <div className="accomplishment-content">
-                  <h3 className="accomplishment-title">{accomplishment.title}</h3>
-                  <p className="accomplishment-description">{accomplishment.description}</p>
-                </div>
-              </div>
-            ))}
+                ))
+            ) : (
+                <div className="col-span-full text-center text-slate-500 py-10">Loading accomplishments...</div>
+            )}
           </div>
         </div>
       </section>
