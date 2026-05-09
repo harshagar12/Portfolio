@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { motion, AnimatePresence, Variants } from "framer-motion"
 import {
   ChevronDown,
   Github,
@@ -9,7 +10,6 @@ import {
   ExternalLink,
   Award,
   GraduationCap,
-  Code,
   Briefcase,
   User,
   Menu,
@@ -19,27 +19,18 @@ import {
   Sun,
   Moon,
   ChevronUp,
-  Terminal,
-  Coffee,
-  FileCode,
-  Globe,
-  Cpu,
-  Database,
-  GitGraph,
-  Atom,
-  MessageSquare,
-  Users,
-  Puzzle,
-  Clock,
-  RefreshCcw,
-  Crown,
-  Brain,
-  Palette,
-  Smartphone,
-  Trophy,
-  Target,
-  Zap,
 } from "lucide-react"
+import {
+  SiReact, SiNextdotjs, SiTypescript, SiNodedotjs,
+  SiPython, SiMongodb, SiDocker, SiGithub,
+  SiJavascript, SiHtml5, SiCss, SiExpress,
+  SiMysql, SiTensorflow, SiOpencv, SiGit,
+  SiLinux, SiFirebase, SiKubernetes,
+  SiTailwindcss, SiFastapi, SiPostgresql,
+  SiPostman, SiVercel, SiPandas, SiScikitlearn,
+  SiRust, SiGraphql,
+} from "react-icons/si"
+import { FaAws } from "react-icons/fa"
 import Image from "next/image"
 import { collection, getDocs, doc, getDoc, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -73,8 +64,9 @@ const LeetCodeModal = ({ isOpen, onClose, username = "harsh_agar_12" }: { isOpen
       if (isOpen && !data) {
         setLoading(true);
         // Using external API to avoid server-side route issues with static export
-        fetch(`https://leetcode-stats-api.herokuapp.com/${username}`)
+        fetch(`https://alfa-leetcode-api.onrender.com/userProfile/${username}`)
           .then((res) => {
+
             if (!res.ok) throw new Error("Failed to fetch data");
             return res.json();
           })
@@ -107,7 +99,7 @@ const LeetCodeModal = ({ isOpen, onClose, username = "harsh_agar_12" }: { isOpen
   
           <div className="leetcode-header">
             <div className="leetcode-icon-wrapper">
-               <LeetCodeIcon className="text-[#ffa116]" size={32} />
+               <LeetCodeIcon className="text-sky-400" size={32} />
             </div>
             <div>
                 <h3 className="text-xl font-bold text-white">LeetCode Stats</h3>
@@ -117,7 +109,7 @@ const LeetCodeModal = ({ isOpen, onClose, username = "harsh_agar_12" }: { isOpen
   
           {loading ? (
             <div className="flex justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#ffa116]"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-400"></div>
             </div>
           ) : error ? (
             <div className="text-red-400 text-center py-4">{error}</div>
@@ -161,7 +153,7 @@ const LeetCodeModal = ({ isOpen, onClose, username = "harsh_agar_12" }: { isOpen
   
                     <div className="leetcode-progress-item">
                         <div className="leetcode-progress-header">
-                            <span className="text-amber-400">Medium</span>
+                            <span className="text-indigo-400">Medium</span>
                             <span className="text-slate-300">
                                 {data.mediumSolved}
                                 <span className="text-slate-500 text-xs ml-1">
@@ -171,8 +163,8 @@ const LeetCodeModal = ({ isOpen, onClose, username = "harsh_agar_12" }: { isOpen
                         </div>
                         <div className="leetcode-progress-track">
                             <div 
-                                className="leetcode-progress-fill bg-amber-400"
-                                style={{ width: `${(data.mediumSolved / data.totalMedium * 100) || 0}%`, backgroundColor: '#fbbf24' }}
+                                className="leetcode-progress-fill bg-indigo-400"
+                                style={{ width: `${(data.mediumSolved / data.totalMedium * 100) || 0}%`, backgroundColor: '#818cf8' }}
                             />
                         </div>
                     </div>
@@ -212,15 +204,146 @@ const LeetCodeModal = ({ isOpen, onClose, username = "harsh_agar_12" }: { isOpen
     );
   };
 
+const GithubStatsModal = ({ isOpen, onClose, username }: { isOpen: boolean; onClose: () => void; username: string }) => {
+    const [data, setData] = useState<any>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+  
+    useEffect(() => {
+      if (isOpen && !data) {
+        setLoading(true);
+        fetch(`https://api.github.com/users/${username}`)
+          .then((res) => {
+            if (!res.ok) throw new Error("Failed to fetch data");
+            return res.json();
+          })
+          .then((userJson) => {
+            return fetch(`https://api.github.com/users/${username}/repos?per_page=100`)
+              .then(res => res.json())
+              .then(reposJson => {
+                const languages: any = {};
+                if (Array.isArray(reposJson)) {
+                  reposJson.forEach((repo: any) => {
+                    if (repo.language) {
+                      languages[repo.language] = (languages[repo.language] || 0) + 1;
+                    }
+                  });
+                }
+                
+                const topLanguages = Object.entries(languages)
+                  .sort((a: any, b: any) => b[1] - a[1])
+                  .slice(0, 3)
+                  .map(entry => entry[0]);
+
+                setData({
+                  ...userJson,
+                  topLanguages,
+                  totalStars: Array.isArray(reposJson) ? reposJson.reduce((acc: number, repo: any) => acc + repo.stargazers_count, 0) : 0
+                });
+                setLoading(false);
+              });
+          })
+          .catch((err) => {
+            setError(err.message);
+            setLoading(false);
+          });
+      }
+    }, [isOpen, username, data]);
+  
+    if (!isOpen) return null;
+  
+    return (
+      <div className="leetcode-modal-overlay" onClick={onClose}>
+        <div className="leetcode-modal-content" onClick={e => e.stopPropagation()}>
+          <button className="leetcode-modal-close" onClick={onClose}>
+            <X size={20} />
+          </button>
+          
+          <div className="leetcode-header">
+              <div className="leetcode-icon-wrapper" style={{ borderRadius: '50%', background: 'rgba(56, 189, 248, 0.1)' }}>
+                  <Github className="text-sky-400" size={32} />
+              </div>
+              <div>
+                  <h3 className="text-xl font-bold text-white tracking-tight">GitHub Identity</h3>
+                  <p className="text-slate-400 text-sm">@{username}</p>
+              </div>
+          </div>
+  
+          {loading ? (
+              <div className="py-20 text-center">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-sky-400 mb-4"></div>
+                  <p className="text-slate-400 animate-pulse">Syncing repositories...</p>
+              </div>
+          ) : error ? (
+              <div className="py-10 text-center text-rose-400 bg-rose-400/10 rounded-xl border border-rose-400/20">
+                  <p>Synchronization failed: {error}</p>
+              </div>
+          ) : data ? (
+            <div className="leetcode-body">
+                 {/* GitHub Stats Grid */}
+                 <div className="leetcode-grid">
+                    <div className="leetcode-stat-box">
+                        <div className="leetcode-stat-label">Repositories</div>
+                        <div className="leetcode-stat-value">{data.public_repos}</div>
+                    </div>
+                    <div className="leetcode-stat-box">
+                        <div className="leetcode-stat-label">Followers</div>
+                        <div className="leetcode-stat-value text-sky-400">{data.followers}</div>
+                    </div>
+                    <div className="leetcode-stat-box">
+                        <div className="leetcode-stat-label">Total Stars</div>
+                        <div className="leetcode-stat-value">{data.totalStars}</div>
+                    </div>
+                 </div>
+
+                 {/* Top Languages as Progress-themed Items */}
+                 <div className="leetcode-progress-container">
+                    <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Top Specializations</h4>
+                    {data.topLanguages?.map((lang: string, index: number) => (
+                        <div key={lang} className="leetcode-progress-item">
+                            <div className="leetcode-progress-header">
+                                <span className={index === 0 ? "text-sky-400" : "text-slate-300"}>{lang}</span>
+                                <span className="text-slate-500 text-[10px] uppercase">{index === 0 ? "Primary" : "Core"}</span>
+                            </div>
+                            <div className="leetcode-progress-track">
+                                <div 
+                                    className="leetcode-progress-fill"
+                                    style={{ 
+                                        width: `${100 - (index * 25)}%`, 
+                                        backgroundColor: index === 0 ? '#38bdf8' : '#6366f1',
+                                        opacity: 1 - (index * 0.15)
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    ))}
+                 </div>
+                 
+                 <div className="pt-2">
+                    <a 
+                        href={`https://github.com/${username}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="leetcode-btn-primary"
+                    >
+                        <span>Explore Full Repository</span>
+                        <ExternalLink size={16} />
+                    </a>
+                 </div>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    );
+  };
+
 export default function Portfolio() {
   const [activeSection, setActiveSection] = useState("home")
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isGithubOpen, setIsGithubOpen] = useState(false)
   const [scrollY, setScrollY] = useState(0)
-  const mousePosition = useRef({ x: 0, y: 0 })
   const [isDarkMode, setIsDarkMode] = useState(true)
-  const skillsRef = useRef<HTMLDivElement>(null)
   
-  // --- New features state ---
   const [activeCategory, setActiveCategory] = useState("All")
   const [showScrollTop, setShowScrollTop] = useState(false)
   
@@ -229,24 +352,30 @@ export default function Portfolio() {
   const [accomplishments, setAccomplishments] = useState<any[]>([]);
   const [resumeUrl, setResumeUrl] = useState("");
 
+  // Role rotation for hero
+  const roles = ["Full Stack Developer", "Third-Year CSE Student", "AI/ML Enthusiast", "Problem Solver"]
+  const [roleIndex, setRoleIndex] = useState(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRoleIndex((prev) => (prev + 1) % roles.length)
+    }, 3000)
+    return () => clearInterval(interval)
+  }, [])
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch Projects
         const projectsQuery = query(collection(db, "projects"), orderBy("order", "asc"));
         const projectsSnap = await getDocs(projectsQuery);
         if (!projectsSnap.empty) {
             setProjects(projectsSnap.docs.map(d => d.data()));
         }
-
-        // Fetch Accomplishments
         const accQuery = query(collection(db, "accomplishments"), orderBy("order", "asc"));
         const accSnap = await getDocs(accQuery);
         if (!accSnap.empty) {
             setAccomplishments(accSnap.docs.map(d => d.data()));
         }
-
-        // Fetch Resume
         const resumeSnap = await getDoc(doc(db, "settings", "resume"));
         if (resumeSnap.exists()) {
             setResumeUrl(resumeSnap.data().url);
@@ -257,18 +386,6 @@ export default function Portfolio() {
     };
     fetchData();
   }, []);
-  
-  // Typing effect state
-  const [typingText, setTypingText] = useState("")
-  const [isDeleting, setIsDeleting] = useState(false)
-  const [loopNum, setLoopNum] = useState(0)
-  const [typingSpeed, setTypingSpeed] = useState(150)
-  
-  // 3D Tilt state
-  const [tiltStyle, setTiltStyle] = useState({})
-  
-  const roles = ["Third-year CSE student", "Full Stack Developer", "AI/ML Enthusiast", "Problem Solver"]
-
 
   // --- Indicator state ---
   const navRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({})
@@ -276,7 +393,6 @@ export default function Portfolio() {
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 })
 
   useEffect(() => {
-    // Update indicator position/width when activeSection changes or on resize
     const updateIndicator = () => {
       const activeRef = navRefs.current[activeSection]
       if (activeRef && indicatorRef.current) {
@@ -295,26 +411,7 @@ export default function Portfolio() {
     return () => window.removeEventListener("resize", updateIndicator)
   }, [activeSection, isMenuOpen])
 
-  useEffect(() => {
-    // Also update on scroll for smoothness
-    const onScroll = () => {
-      const activeRef = navRefs.current[activeSection]
-      if (activeRef && indicatorRef.current) {
-        const rect = activeRef.getBoundingClientRect()
-        const parentRect = activeRef.parentElement?.getBoundingClientRect()
-        if (parentRect) {
-          setIndicatorStyle({
-            left: rect.left - parentRect.left,
-            width: rect.width,
-          })
-        }
-      }
-    }
-    window.addEventListener("scroll", onScroll)
-    return () => window.removeEventListener("scroll", onScroll)
-  }, [activeSection, isMenuOpen])
-
-  // Theme toggle functionality
+  // Theme toggle
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme")
     if (savedTheme) {
@@ -327,16 +424,11 @@ export default function Portfolio() {
     localStorage.setItem("theme", isDarkMode ? "dark" : "light")
   }, [isDarkMode])
 
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode)
-  }
-
-
+  const toggleTheme = () => setIsDarkMode(!isDarkMode)
 
   useEffect(() => {
     const handleScroll = () => {
       setScrollY(window.scrollY)
-
       const sections = ["home", "about", "skills", "projects", "accomplishments", "education"]
       const currentSection = sections.find((section) => {
         const element = document.getElementById(section)
@@ -346,241 +438,144 @@ export default function Portfolio() {
         }
         return false
       })
-
-      if (currentSection) {
-        setActiveSection(currentSection)
-      }
+      if (currentSection) setActiveSection(currentSection)
     }
-
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId)
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" })
-    }
-    if (isMenuOpen) {
-      setIsMenuOpen(false)
-    }
+    if (element) element.scrollIntoView({ behavior: "smooth" })
+    if (isMenuOpen) setIsMenuOpen(false)
   }
 
   const navItems = [
     { id: "home", label: "Home", icon: User },
     { id: "about", label: "About", icon: User },
-    { id: "skills", label: "Skills", icon: Code },
+    { id: "skills", label: "Skills", icon: Briefcase },
     { id: "projects", label: "Projects", icon: Briefcase },
     { id: "accomplishments", label: "Accomplishments", icon: Award },
     { id: "education", label: "Education", icon: GraduationCap },
   ]
 
-  // --- New Feature Effects ---
-
-  // Typing Effect
-  useEffect(() => {
-    const handleTyping = () => {
-      const i = loopNum % roles.length
-      const fullText = roles[i]
-      
-      setTypingText(isDeleting 
-        ? fullText.substring(0, typingText.length - 1) 
-        : fullText.substring(0, typingText.length + 1)
-      )
-
-      setTypingSpeed(isDeleting ? 30 : 150)
-
-      if (!isDeleting && typingText === fullText) {
-        setTimeout(() => setIsDeleting(true), 1500)
-      } else if (isDeleting && typingText === "") {
-        setIsDeleting(false)
-        setLoopNum(loopNum + 1)
-      }
-    }
-
-    const timer = setTimeout(handleTyping, typingSpeed)
-    return () => clearTimeout(timer)
-  }, [typingText, isDeleting, loopNum])
-
   // Scroll to Top visibility
   useEffect(() => {
     const checkScrollTop = () => {
-      if (!showScrollTop && window.scrollY > 400) {
-        setShowScrollTop(true)
-      } else if (showScrollTop && window.scrollY <= 400) {
-        setShowScrollTop(false)
-      }
+      setShowScrollTop(window.scrollY > 400)
     }
     window.addEventListener("scroll", checkScrollTop)
     return () => window.removeEventListener("scroll", checkScrollTop)
-  }, [showScrollTop])
+  }, [])
 
-  // 3D Tilt Handlers
-  const handleTiltMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const { left, top, width, height } = e.currentTarget.getBoundingClientRect()
-    const x = (e.clientX - left - width / 2) / 25
-    const y = (e.clientY - top - height / 2) / 25
-    setTiltStyle({ transform: `perspective(1000px) rotateX(${-y}deg) rotateY(${x}deg) scale(1.05)` })
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" })
+
+  const categories = ["All", "Web App", "AI/ML", "IoT", "Chrome Extension"]
+
+  // Framer Motion variants
+  const sectionVariants: Variants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
   }
 
-  const handleTiltLeave = () => {
-    setTiltStyle({ transform: `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)` })
+  const staggerContainer: Variants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.1 } },
   }
 
-  // Scroll to Top action
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" })
+  const staggerItem: Variants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
   }
 
-  // Project Filtering Logic
-  const categories = ["All", "Web App", "AI/ML", "IoT", "Chrome Extension"] 
-  
-  // Note: We'll modify the projects array to include categories, 
-  // or infer them from tech/description. Ideally, we add a 'category' field.
-  // For now, let's infer or just use the whole list if 'All'.
-  // Since we can't easily modify the const array in the return, let's assume we filter inside the render.
+  // Skills data with brand icons
+  // Skills data with brand icons and grid spans
+  const skillCategories = [
+    {
+      title: "Frontend",
+      className: "bento-card-large",
+      icon: SiReact,
+      skills: [
+        { name: "React", desc: "Component architecture", icon: SiReact },
+        { name: "Next.js", desc: "Full-stack framework", icon: SiNextdotjs },
+        { name: "TypeScript", desc: "Type-safe development", icon: SiTypescript },
+        { name: "TailwindCSS", desc: "Utility-first styling", icon: SiTailwindcss },
+        { name: "HTML/CSS", desc: "Semantic markup & styling", icon: SiCss },
+      ],
+    },
+    {
+      title: "Backend & DB",
+      className: "bento-card-tall",
+      icon: SiNodedotjs,
+      skills: [
+        { name: "Node.js", desc: "Server environment", icon: SiNodedotjs },
+        { name: "Express", desc: "API framework", icon: SiExpress },
+        { name: "FastAPI", desc: "High-perf Python APIs", icon: SiFastapi },
+        { name: "PostgreSQL", desc: "Relational DB", icon: SiPostgresql },
+        { name: "MongoDB", desc: "NoSQL database", icon: SiMongodb },
+        { name: "MySQL", desc: "Relational database", icon: SiMysql },
+      ],
+    },
+    {
+      title: "Tools & DevOps",
+      className: "bento-card-standard",
+      icon: SiDocker,
+      skills: [
+        { name: "Docker", desc: "Containerization", icon: SiDocker },
+        { name: "Git", desc: "Version control", icon: SiGit },
+        { name: "Postman", desc: "API testing", icon: SiPostman },
+        { name: "Vercel", desc: "Deployment platform", icon: SiVercel },
+      ],
+    },
+    {
+      title: "AI & ML",
+      className: "bento-card-wide",
+      icon: SiTensorflow,
+      skills: [
+        { name: "Python", desc: "Data processing", icon: SiPython },
+        { name: "TensorFlow", desc: "Deep learning", icon: SiTensorflow },
+        { name: "Pandas", desc: "Data analysis", icon: SiPandas },
+        { name: "Scikit-learn", desc: "Machine learning", icon: SiScikitlearn },
+        { name: "OpenCV", desc: "Computer vision", icon: SiOpencv },
+      ],
+    },
+    {
+      title: "Currently Learning",
+      className: "bento-card-full",
+      icon: FaAws,
+      skills: [
+        { name: "AWS", desc: "Cloud", icon: FaAws },
+        { name: "Rust", desc: "Systems programming", icon: SiRust },
+        { name: "Microservices", desc: "Distributed systems", icon: SiNodedotjs },
+        { name: "GraphQL", desc: "API query language", icon: SiGraphql },
+      ],
+    },
+  ]
 
-
-  // --- Network Background Animation ---
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
-
-    let animationFrameId: number
-    let width = window.innerWidth
-    let height = window.innerHeight
-
-    canvas.width = width
-    canvas.height = height
-
-    const particles: Particle[] = []
-    const particleCount = Math.floor((width * height) / 9000) // Dynamic density (higher frequency)
-    const connectionDistance = 120
-    const mouseDistance = 150
-
-    class Particle {
-      x: number
-      y: number
-      vx: number
-      vy: number
-      size: number
-
-      constructor() {
-        this.x = Math.random() * width
-        this.y = Math.random() * height
-        this.vx = (Math.random() - 0.5) * 0.3 // Sluggish movement
-        this.vy = (Math.random() - 0.5) * 0.3
-        this.size = Math.random() * 1.5 + 0.5 // Smaller particles
-      }
-
-      update() {
-        this.x += this.vx
-        this.y += this.vy
-
-        // Bounce off edges
-        if (this.x < 0 || this.x > width) this.vx *= -1
-        if (this.y < 0 || this.y > height) this.vy *= -1
-      }
-
-      draw() {
-        if (!ctx) return
-        ctx.beginPath()
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2)
-        ctx.fillStyle = isDarkMode ? "rgba(56, 189, 248, 0.3)" : "rgba(2, 132, 199, 0.3)" // Sky Blue (Dark & Light)
-        ctx.fill()
-      }
-    }
-
-    const init = () => {
-      particles.length = 0
-      for (let i = 0; i < particleCount; i++) {
-        particles.push(new Particle())
-      }
-    }
-
-    const animate = () => {
-      if (!ctx) return
-      ctx.clearRect(0, 0, width, height)
-      
-      // Update and draw particles
-      particles.forEach(particle => {
-        particle.update()
-        particle.draw()
-      })
-
-      // Draw connections
-      for (let i = 0; i < particles.length; i++) {
-        const p1 = particles[i]
-        
-        // Connect to mouse
-        const dxMouse = mousePosition.current.x - p1.x
-        const dyMouse = mousePosition.current.y - p1.y
-        const distMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse)
-
-        if (distMouse < mouseDistance) {
-            ctx.beginPath()
-            ctx.strokeStyle = isDarkMode ? `rgba(56, 189, 248, ${0.5 * (1 - distMouse / mouseDistance)})` : `rgba(2, 132, 199, ${0.5 * (1 - distMouse / mouseDistance)})` // Sky 600 for Light Mode
-            ctx.lineWidth = 0.6
-            ctx.moveTo(p1.x, p1.y)
-            ctx.lineTo(mousePosition.current.x, mousePosition.current.y)
-            ctx.stroke()
-        }
-
-        // Connect to other particles
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j]
-          const dx = p1.x - p2.x
-          const dy = p1.y - p2.y
-          const distance = Math.sqrt(dx * dx + dy * dy)
-
-          if (distance < connectionDistance) {
-            ctx.beginPath()
-            ctx.strokeStyle = isDarkMode ? `rgba(129, 140, 248, ${0.15 * (1 - distance / connectionDistance)})` : `rgba(79, 70, 229, ${0.15 * (1 - distance / connectionDistance)})` // Indigo 600 for Light Mode
-            ctx.lineWidth = 0.3
-            ctx.moveTo(p1.x, p1.y)
-            ctx.lineTo(p2.x, p2.y)
-            ctx.stroke()
-          }
-        }
-      }
-
-      animationFrameId = requestAnimationFrame(animate)
-    }
-
-    const handleResize = () => {
-      width = window.innerWidth
-      height = window.innerHeight
-      canvas.width = width
-      canvas.height = height
-      init()
-    }
-
-    const handleMouseMove = (e: MouseEvent) => {
-      mousePosition.current = { x: e.clientX, y: e.clientY }
-    }
-
-    init()
-    animate()
-    window.addEventListener("resize", handleResize)
-    window.addEventListener("mousemove", handleMouseMove)
-
-    return () => {
-      window.removeEventListener("resize", handleResize)
-      window.removeEventListener("mousemove", handleMouseMove)
-      cancelAnimationFrame(animationFrameId)
-    }
-  }, [isDarkMode])
+  // Hero tech stack icons
+  const techStack = [
+    { icon: SiReact, label: "React" },
+    { icon: SiNextdotjs, label: "Next.js" },
+    { icon: SiTypescript, label: "TypeScript" },
+    { icon: SiNodedotjs, label: "Node.js" },
+    { icon: SiPython, label: "Python" },
+    { icon: SiMongodb, label: "MongoDB" },
+    { icon: SiDocker, label: "Docker" },
+    { icon: SiGithub, label: "GitHub" },
+  ]
 
   const [isLeetCodeModalOpen, setIsLeetCodeModalOpen] = useState(false);
 
-  // Social Links updated
   const socialLinks = [
-    { href: "https://github.com/harshagar12", icon: Github, label: "GitHub" },
+    { 
+        href: "https://github.com/harshagar12", 
+        icon: Github, 
+        label: "GitHub",
+        onClick: (e: React.MouseEvent) => {
+            e.preventDefault();
+            setIsGithubOpen(true);
+        }
+    },
     { href: "https://www.linkedin.com/in/harsh-agarwal-a31b4528b", icon: Linkedin, label: "LinkedIn" },
     { href: "https://x.com/HarshAgar12", icon: Twitter, label: "Twitter" },
     { 
@@ -589,43 +584,21 @@ export default function Portfolio() {
         label: "LeetCode", 
         onClick: (e: React.MouseEvent) => {
             e.preventDefault();
-            console.log("LeetCode clicked");
             setIsLeetCodeModalOpen(true);
         }
     },
   ]
 
-  const technicalSkills = [
-    { name: "Python", icon: Terminal },
-    { name: "Java", icon: Coffee },
-    { name: "JavaScript", icon: FileCode },
-    { name: "HTML/CSS", icon: Globe },
-    { name: "IoT", icon: Cpu },
-    { name: "MySQL", icon: Database },
-    { name: "Git", icon: GitGraph },
-    { name: "React", icon: Atom },
-  ]
-
-  const softSkills = [
-    { name: "Communication", icon: MessageSquare },
-    { name: "Teamwork", icon: Users },
-    { name: "Problem Solving", icon: Puzzle },
-    { name: "Time Management", icon: Clock },
-    { name: "Adaptability", icon: RefreshCcw },
-    { name: "Leadership", icon: Crown },
-    { name: "Critical Thinking", icon: Brain },
-    { name: "Creativity", icon: Palette },
-  ]
-
   return (
     <div className="portfolio-container">
-      {/* Animated Background */}
-      {/* Animated Background */}
-      <canvas
-        ref={canvasRef}
-        className="animated-background"
-        style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }}
-      />
+      {/* Ambient Background */}
+      <div className="ambient-bg">
+        <div className="mesh-blob mesh-blob-1" />
+        <div className="mesh-blob mesh-blob-2" />
+        <div className="mesh-blob mesh-blob-3" />
+        <div className="mesh-blob mesh-blob-4" />
+        <div className="noise-overlay" />
+      </div>
 
 
 
@@ -776,25 +749,12 @@ export default function Portfolio() {
 
       {/* Hero Section */}
       <section id="home" className="hero-section" style={{ paddingTop: "120px" }}>
-        <div className="hero-background">
-          <div className="floating-shapes">
-            <div className="shape shape-1"></div>
-            <div className="shape shape-2"></div>
-            <div className="shape shape-3"></div>
-            <div className="shape shape-4"></div>
-            <div className="shape shape-5"></div>
-          </div>
-        </div>
+        <div className="hero-background" />
 
         <div className="hero-content">
           <div className="hero-left">
-            <div className="profile-container">
-                <div 
-                  className="profile-image-wrapper tilt-card"
-                  onMouseMove={handleTiltMove}
-                  onMouseLeave={handleTiltLeave}
-                  style={tiltStyle}
-                >
+            <div className="identity-composition">
+                <div className="profile-image-wrapper">
                   <Image
                     src="/images/profile.jpg"
                     alt="Harsh Agarwal"
@@ -802,25 +762,49 @@ export default function Portfolio() {
                     height={350}
                     className="profile-image"
                   />
-                  <div className="tech-orbit">
-                    <div className="tech-icon tech-1"><Atom size={24} /></div>
-                    <div className="tech-icon tech-2"><Terminal size={24} /></div>
-                    <div className="tech-icon tech-3"><Smartphone size={24} /></div>
-                    <div className="tech-icon tech-4"><Coffee size={24} /></div>
+                  <div className="profile-glow"></div>
+                </div>
+                
+                {/* Continuous Orbit Animation */}
+                <div className="orbit-system">
+                  <div className="orbit-ring">
+                    {techStack.slice(0, 5).map((tech, i) => (
+                      <div key={tech.label} className="orbit-item" style={{ '--i': i, '--total': 5 } as React.CSSProperties}>
+                        <div className="orbit-icon-wrapper glass-panel">
+                          <tech.icon size={20} className="orbit-icon" />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
+
+
             </div>
           </div>
 
           <div className="hero-right">
-            <div className="hero-text">
-
+            <motion.div 
+              className="hero-text"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
               <h1 className="hero-title">
                 <span className="title-line">Hi, I&apos;m</span>
                 <span className="title-name">Harsh Agarwal</span>
-                <span className="title-role">
-                  {typingText}
-                  <span className="typing-cursor"></span>
+                <span className="title-role" style={{ display: "block", height: "1.8em" }}>
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={roleIndex}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.4, ease: "easeOut" }}
+                      style={{ display: "inline-block" }}
+                    >
+                      {roles[roleIndex]}
+                    </motion.span>
+                  </AnimatePresence>
                 </span>
               </h1>
 
@@ -829,21 +813,6 @@ export default function Portfolio() {
                 Proven hackathon winner who transforms innovative ideas into practical solutions, bridging academic
                 excellence with real-world impact.
               </p>
-
-              <div className="hero-stats">
-                <div className="stat">
-                  <span className="stat-number">9.43</span>
-                  <span className="stat-label">CGPA</span>
-                </div>
-                <div className="stat">
-                  <span className="stat-number">10+</span>
-                  <span className="stat-label">Projects</span>
-                </div>
-                <div className="stat">
-                  <span className="stat-number">5+</span>
-                  <span className="stat-label">Awards</span>
-                </div>
-              </div>
 
               <div className="hero-actions">
                 <button
@@ -861,14 +830,13 @@ export default function Portfolio() {
                   Resume
                 </a>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
 
         <div
           className="scroll-indicator"
           onClick={() => scrollToSection("about")}
-
         >
           <ChevronDown className="scroll-arrow" />
         </div>
@@ -876,26 +844,19 @@ export default function Portfolio() {
 
       {/* About Section */}
       <section id="about" className="section">
-        <div className="container">
+        <motion.div className="container" variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }}>
           <div className="section-header">
             <h2 className="section-title">About Me</h2>
-            <div className="section-line"></div>
           </div>
 
           <div className="about-content">
             <div className="about-text">
-              <div className="text-background-balls">
-                <div className="bouncing-ball ball-1"></div>
-                <div className="bouncing-ball ball-2"></div>
-                <div className="bouncing-ball ball-3"></div>
-              </div>
               <p className="about-paragraph">
                 Driven Computer Science student with a track record of academic excellence, including Silver Medal for
                 being the Class Topper in 2nd Semester. My technical journey spans not just theory but also competitive
                 programming to building production-ready applications across web development, IoT systems and AI/ML
                 solutions.
               </p>
-
               <p className="about-paragraph">
                 My core expertise includes full-stack development with modern web-dev technologies, IoT automation using
                 microcontrollers and AI integration. Proficient in Python, Java and C with hands-on experience in
@@ -914,20 +875,15 @@ export default function Portfolio() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
-      {/* Enhanced Anchoring Section */}
+      {/* Anchoring Section */}
       <section className="section anchoring-section">
-        <div className="container">
+        <motion.div className="container" variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }}>
           <div className="anchoring-content">
             <div className="anchoring-left">
               <div className="anchoring-text">
-                <div className="text-background-balls">
-                  <div className="bouncing-ball ball-1"></div>
-                  <div className="bouncing-ball ball-2"></div>
-                  <div className="bouncing-ball ball-3"></div>
-                </div>
                 <h3 className="anchoring-title">Beyond Code: The Voice of Events</h3>
                 <p className="anchoring-description">
                   Beyond coding, I also actively contribute as an anchor at college events, combining technical skills
@@ -937,15 +893,6 @@ export default function Portfolio() {
               </div>
             </div>
             <div className="anchoring-gallery">
-              <div className="anchoring-background">
-                <div className="anchoring-shapes">
-                  <div className="anchoring-shape anchoring-shape-1"></div>
-                  <div className="anchoring-shape anchoring-shape-2"></div>
-                  <div className="anchoring-shape anchoring-shape-3"></div>
-                  <div className="anchoring-shape anchoring-shape-4"></div>
-                  <div className="anchoring-shape anchoring-shape-5"></div>
-                </div>
-              </div>
               <div className="anchoring-image-container">
                 <Image
                   src="/images/anchoring1.jpg"
@@ -971,77 +918,45 @@ export default function Portfolio() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Skills Section */}
       <section id="skills" className="section section-alt">
-        <div className="container">
+        <motion.div className="container" variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }}>
           <div className="section-header">
             <h2 className="section-title">Skills & Expertise</h2>
-            <div className="section-line"></div>
           </div>
 
-          <div className="skills-container">
-            <div className="skills-container">
-              {/* Technical Skills Marquee */}
-              <div className="skills-category" style={{marginBottom: '4rem', width: '100%'}}>
-                <h3 className="skills-category-title" style={{justifyContent: 'center', marginBottom: '2rem'}}>
-                  <Code className="category-icon" />
-                  Technical Skills
-                </h3>
-                <div className="skills-marquee-container">
-                  <div className="skills-marquee">
-                    {[...technicalSkills, ...technicalSkills].map((skill, index) => (
-                      <div
-                        key={`tech-${index}`}
-                        className="skill-item"
-                        style={{minWidth: '150px'}}
-                      >
-                        <div className="skill-icon">
-                          <skill.icon size={32} />
-                        </div>
-                        <div className="skill-name">{skill.name}</div>
-                      </div>
-                    ))}
-                  </div>
+          <motion.div className="bento-grid" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            {skillCategories.map((cat) => (
+              <motion.div key={cat.title} className={`bento-card glass-panel ${cat.className}`} variants={staggerItem}>
+                <div className="bento-card-header">
+                  <cat.icon size={24} className="bento-card-main-icon" />
+                  <div className="bento-card-title">{cat.title}</div>
                 </div>
-              </div>
-
-              {/* Soft Skills Marquee */}
-              <div className="skills-category" style={{width: '100%'}}>
-                <h3 className="skills-category-title" style={{justifyContent: 'center', marginBottom: '2rem'}}>
-                  <User className="category-icon" />
-                  Soft Skills
-                </h3>
-                <div className="skills-marquee-container">
-                  <div className="skills-marquee" style={{animationDirection: "reverse"}}>
-                    {[...softSkills, ...softSkills].map((skill, index) => (
-                      <div
-                        key={`soft-${index}`}
-                        className="skill-item"
-                        style={{minWidth: '150px'}}
-                      >
-                        <div className="skill-icon">
-                          <skill.icon size={32} />
-                        </div>
-                        <div className="skill-name">{skill.name}</div>
+                <div className={`bento-skill-list ${cat.className === 'bento-card-full' ? 'bento-skill-list-horizontal' : ''}`}>
+                  {cat.skills.map((skill) => (
+                    <div key={skill.name} className="bento-skill-item">
+                      <span className="bento-skill-icon"><skill.icon size={18} /></span>
+                      <div className="bento-skill-info">
+                        <span className="bento-skill-name">{skill.name}</span>
+                        <span className="bento-skill-desc">: {skill.desc}</span>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* Projects Section */}
       <section id="projects" className="section">
-        <div className="container">
+        <motion.div className="container" variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }}>
           <div className="section-header">
             <h2 className="section-title">Featured Projects</h2>
-            <div className="section-line"></div>
           </div>
 
           <div className="project-filters">
@@ -1056,14 +971,14 @@ export default function Portfolio() {
             ))}
           </div>
 
-          <div className="projects-grid">
+          <motion.div className="projects-grid" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             {projects.length > 0 ? (
                 projects.filter(project => activeCategory === "All" || project.category === activeCategory)
                 .map((project, index) => (
-                <div
+                <motion.div
                     key={index}
                     className="project-card"
-                    style={{ animationDelay: `${index * 0.15}s` }}
+                    variants={staggerItem}
                 >
                     <div className="project-image">
                     <Image
@@ -1095,30 +1010,29 @@ export default function Portfolio() {
                         ))}
                     </div>
                     </div>
-                </div>
+                </motion.div>
                 ))
             ) : (
                  <div className="col-span-full text-center text-slate-500 py-10">Loading projects...</div>
             )}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* Accomplishments Section */}
       <section id="accomplishments" className="section section-alt">
-        <div className="container">
+        <motion.div className="container" variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }}>
           <div className="section-header">
             <h2 className="section-title">Accomplishments</h2>
-            <div className="section-line"></div>
           </div>
 
-          <div className="accomplishments-grid">
+          <motion.div className="accomplishments-grid" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             {accomplishments.length > 0 ? (
                 accomplishments.map((accomplishment, index) => (
-                <div
+                <motion.div
                     key={index}
                     className="accomplishment-card"
-                    style={{ animationDelay: `${index * 0.15}s` }}
+                    variants={staggerItem}
                 >
                     <div className="accomplishment-image-container">
                     <Image
@@ -1133,24 +1047,23 @@ export default function Portfolio() {
                     <h3 className="accomplishment-title">{accomplishment.title}</h3>
                     <p className="accomplishment-description">{accomplishment.description}</p>
                     </div>
-                </div>
+                </motion.div>
                 ))
             ) : (
                 <div className="col-span-full text-center text-slate-500 py-10">Loading accomplishments...</div>
             )}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* Education Section */}
       <section id="education" className="section">
-        <div className="container">
+        <motion.div className="container" variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }}>
           <div className="section-header">
             <h2 className="section-title">Education</h2>
-            <div className="section-line"></div>
           </div>
 
-          <div className="education-cards">
+          <motion.div className="education-cards" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             {[
               {
                 degree: "B.Tech - Computer Science Engineering",
@@ -1182,10 +1095,10 @@ export default function Portfolio() {
                 image: "/images/highschool.jpg",
               },
             ].map((education, index) => (
-              <div
+              <motion.div
                 key={index}
                 className="education-card"
-                style={{ animationDelay: `${index * 0.2}s` }}
+                variants={staggerItem}
               >
                 <div className="education-image">
                   <Image
@@ -1209,10 +1122,10 @@ export default function Portfolio() {
                     ))}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* Footer */}
@@ -1256,6 +1169,12 @@ export default function Portfolio() {
       <LeetCodeModal 
         isOpen={isLeetCodeModalOpen} 
         onClose={() => setIsLeetCodeModalOpen(false)} 
+      />
+
+      <GithubStatsModal 
+        isOpen={isGithubOpen} 
+        onClose={() => setIsGithubOpen(false)} 
+        username="harshagar12" 
       />
 
       {/* Scroll to Top Button */}

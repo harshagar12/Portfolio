@@ -6,8 +6,6 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import Link from "next/link";
 import { LogOut, LayoutDashboard, FolderKanban, Award, FileText } from "lucide-react";
-import BackgroundAnimation from "@/components/BackgroundAnimation";
-
 export default function AdminLayout({
   children,
 }: {
@@ -71,9 +69,12 @@ export default function AdminLayout({
   if (isLoginPage) {
       return (
         <div className="relative z-0">
-            {/* Ensure BackgroundAnimation doesn't block interactions but is visible */}
-            <div className="fixed inset-0 z-0">
-                <BackgroundAnimation />
+            <div className="fixed inset-0 z-0 ambient-bg">
+                <div className="mesh-blob mesh-blob-1" />
+                <div className="mesh-blob mesh-blob-2" />
+                <div className="mesh-blob mesh-blob-3" />
+                <div className="mesh-blob mesh-blob-4" />
+                <div className="noise-overlay" />
             </div>
             {/* Wrapper for Login Page */}
             <div className="relative z-10">
@@ -92,7 +93,13 @@ export default function AdminLayout({
 
   return (
     <div className="portfolio-container">
-       <BackgroundAnimation />
+       <div className="ambient-bg">
+         <div className="mesh-blob mesh-blob-1" />
+         <div className="mesh-blob mesh-blob-2" />
+         <div className="mesh-blob mesh-blob-3" />
+         <div className="mesh-blob mesh-blob-4" />
+         <div className="noise-overlay" />
+       </div>
        
       <nav className={`navbar ${scrolled ? "scrolled" : ""}`}>
         <div className="nav-container">
