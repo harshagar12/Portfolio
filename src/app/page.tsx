@@ -59,7 +59,7 @@ const LeetCodeModal = ({ isOpen, onClose, username = "harsh_agar_12" }: { isOpen
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-  
+
     useEffect(() => {
       if (isOpen && !data) {
         setLoading(true);
@@ -81,22 +81,22 @@ const LeetCodeModal = ({ isOpen, onClose, username = "harsh_agar_12" }: { isOpen
           .finally(() => setLoading(false));
       }
     }, [isOpen, username, data]);
-  
+
     if (!isOpen) return null;
-  
+
     return (
       <div className="leetcode-modal-overlay" onClick={onClose}>
-        <div 
+        <div
             className="leetcode-modal-content"
             onClick={e => e.stopPropagation()}
         >
-          <button 
+          <button
             onClick={onClose}
             className="leetcode-close-btn"
           >
            <X size={24} />
           </button>
-  
+
           <div className="leetcode-header">
             <div className="leetcode-icon-wrapper">
                <LeetCodeIcon className="text-sky-400" size={32} />
@@ -106,7 +106,7 @@ const LeetCodeModal = ({ isOpen, onClose, username = "harsh_agar_12" }: { isOpen
                 <p className="text-slate-400 text-sm">@{username}</p>
             </div>
           </div>
-  
+
           {loading ? (
             <div className="flex justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-400"></div>
@@ -130,27 +130,27 @@ const LeetCodeModal = ({ isOpen, onClose, username = "harsh_agar_12" }: { isOpen
                         </div>
                     </div>
                  </div>
-  
+
                  {/* Progress Bars */}
                  <div className="leetcode-progress-container">
                     <div className="leetcode-progress-item">
                         <div className="leetcode-progress-header">
                             <span className="text-emerald-400">Easy</span>
                             <span className="text-slate-300">
-                                {data.easySolved} 
+                                {data.easySolved}
                                 <span className="text-slate-500 text-xs ml-1">
                                      / {data.totalEasy}
                                 </span>
                             </span>
                         </div>
                         <div className="leetcode-progress-track">
-                            <div 
+                            <div
                                 className="leetcode-progress-fill bg-emerald-400"
                                 style={{ width: `${(data.easySolved / data.totalEasy * 100) || 0}%`, backgroundColor: '#34d399' }}
                             />
                         </div>
                     </div>
-  
+
                     <div className="leetcode-progress-item">
                         <div className="leetcode-progress-header">
                             <span className="text-indigo-400">Medium</span>
@@ -162,13 +162,13 @@ const LeetCodeModal = ({ isOpen, onClose, username = "harsh_agar_12" }: { isOpen
                             </span>
                         </div>
                         <div className="leetcode-progress-track">
-                            <div 
+                            <div
                                 className="leetcode-progress-fill bg-indigo-400"
                                 style={{ width: `${(data.mediumSolved / data.totalMedium * 100) || 0}%`, backgroundColor: '#818cf8' }}
                             />
                         </div>
                     </div>
-  
+
                     <div className="leetcode-progress-item">
                         <div className="leetcode-progress-header">
                             <span className="text-rose-400">Hard</span>
@@ -180,17 +180,17 @@ const LeetCodeModal = ({ isOpen, onClose, username = "harsh_agar_12" }: { isOpen
                             </span>
                         </div>
                         <div className="leetcode-progress-track">
-                            <div 
+                            <div
                                 className="leetcode-progress-fill bg-rose-400"
                                 style={{ width: `${(data.hardSolved / data.totalHard * 100) || 0}%`, backgroundColor: '#fb7185' }}
                             />
                         </div>
                     </div>
                  </div>
-  
-                 <a 
-                    href={`https://leetcode.com/${username}/`} 
-                    target="_blank" 
+
+                 <a
+                    href={`https://leetcode.com/${username}/`}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="leetcode-btn-primary"
                  >
@@ -208,7 +208,7 @@ const GithubStatsModal = ({ isOpen, onClose, username }: { isOpen: boolean; onCl
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-  
+
     useEffect(() => {
       if (isOpen && !data) {
         setLoading(true);
@@ -229,7 +229,7 @@ const GithubStatsModal = ({ isOpen, onClose, username }: { isOpen: boolean; onCl
                     }
                   });
                 }
-                
+
                 const topLanguages = Object.entries(languages)
                   .sort((a: any, b: any) => b[1] - a[1])
                   .slice(0, 3)
@@ -249,26 +249,26 @@ const GithubStatsModal = ({ isOpen, onClose, username }: { isOpen: boolean; onCl
           });
       }
     }, [isOpen, username, data]);
-  
+
     if (!isOpen) return null;
-  
+
     return (
       <div className="leetcode-modal-overlay" onClick={onClose}>
         <div className="leetcode-modal-content" onClick={e => e.stopPropagation()}>
           <button className="leetcode-modal-close" onClick={onClose}>
             <X size={20} />
           </button>
-          
+
           <div className="leetcode-header">
               <div className="leetcode-icon-wrapper" style={{ borderRadius: '50%', background: 'rgba(56, 189, 248, 0.1)' }}>
                   <Github className="text-sky-400" size={32} />
               </div>
               <div>
-                  <h3 className="text-xl font-bold text-white tracking-tight">GitHub Identity</h3>
+                  <h3 className="text-xl font-bold text-white tracking-tight">GitHub Stats</h3>
                   <p className="text-slate-400 text-sm">@{username}</p>
               </div>
           </div>
-  
+
           {loading ? (
               <div className="py-20 text-center">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-sky-400 mb-4"></div>
@@ -306,10 +306,10 @@ const GithubStatsModal = ({ isOpen, onClose, username }: { isOpen: boolean; onCl
                                 <span className="text-slate-500 text-[10px] uppercase">{index === 0 ? "Primary" : "Core"}</span>
                             </div>
                             <div className="leetcode-progress-track">
-                                <div 
+                                <div
                                     className="leetcode-progress-fill"
-                                    style={{ 
-                                        width: `${100 - (index * 25)}%`, 
+                                    style={{
+                                        width: `${100 - (index * 25)}%`,
                                         backgroundColor: index === 0 ? '#38bdf8' : '#6366f1',
                                         opacity: 1 - (index * 0.15)
                                     }}
@@ -318,11 +318,11 @@ const GithubStatsModal = ({ isOpen, onClose, username }: { isOpen: boolean; onCl
                         </div>
                     ))}
                  </div>
-                 
+
                  <div className="pt-2">
-                    <a 
-                        href={`https://github.com/${username}`} 
-                        target="_blank" 
+                    <a
+                        href={`https://github.com/${username}`}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="leetcode-btn-primary"
                     >
@@ -343,10 +343,10 @@ export default function Portfolio() {
   const [isGithubOpen, setIsGithubOpen] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [isDarkMode, setIsDarkMode] = useState(true)
-  
+
   const [activeCategory, setActiveCategory] = useState("All")
   const [showScrollTop, setShowScrollTop] = useState(false)
-  
+
   // Firebase Data State
   const [projects, setProjects] = useState<any[]>([]);
   const [accomplishments, setAccomplishments] = useState<any[]>([]);
@@ -552,24 +552,21 @@ export default function Portfolio() {
     },
   ]
 
-  // Hero tech stack icons
+  // Hero mixed stack icons (AI/ML + core tools)
   const techStack = [
-    { icon: SiReact, label: "React" },
-    { icon: SiNextdotjs, label: "Next.js" },
-    { icon: SiTypescript, label: "TypeScript" },
-    { icon: SiNodedotjs, label: "Node.js" },
     { icon: SiPython, label: "Python" },
-    { icon: SiMongodb, label: "MongoDB" },
-    { icon: SiDocker, label: "Docker" },
+    { icon: SiTensorflow, label: "TensorFlow" },
+    { icon: SiFastapi, label: "FastAPI" },
+    { icon: SiReact, label: "React" },
     { icon: SiGithub, label: "GitHub" },
   ]
 
   const [isLeetCodeModalOpen, setIsLeetCodeModalOpen] = useState(false);
 
   const socialLinks = [
-    { 
-        href: "https://github.com/harshagar12", 
-        icon: Github, 
+    {
+        href: "https://github.com/harshagar12",
+        icon: Github,
         label: "GitHub",
         onClick: (e: React.MouseEvent) => {
             e.preventDefault();
@@ -578,10 +575,10 @@ export default function Portfolio() {
     },
     { href: "https://www.linkedin.com/in/harsh-agarwal-a31b4528b", icon: Linkedin, label: "LinkedIn" },
     { href: "https://x.com/HarshAgar12", icon: Twitter, label: "Twitter" },
-    { 
-        href: "#", 
-        icon: LeetCodeIcon, 
-        label: "LeetCode", 
+    {
+        href: "#",
+        icon: LeetCodeIcon,
+        label: "LeetCode",
         onClick: (e: React.MouseEvent) => {
             e.preventDefault();
             setIsLeetCodeModalOpen(true);
@@ -641,12 +638,12 @@ export default function Portfolio() {
           </button>
         );
       })}
-      
+
       {/* Social links for mobile/tablet only */}
       <div className="nav-social-mobile">
         {socialLinks.map((social) => {
           const Icon = social.icon
-          
+
           if (social.onClick) {
              return (
                <button
@@ -683,7 +680,7 @@ export default function Portfolio() {
       <div className="nav-social">
         {socialLinks.map((social) => {
           const Icon = social.icon
-          
+
           if (social.onClick) {
             return (
               <button
@@ -697,7 +694,7 @@ export default function Portfolio() {
               </button>
             )
           }
-          
+
           return (
             <a
               key={social.label}
@@ -723,7 +720,7 @@ export default function Portfolio() {
       </button>
 
       {/* Mobile menu toggle - shown only on mobile */}
-      
+
     </div>
       </div>
     </nav>
@@ -764,12 +761,12 @@ export default function Portfolio() {
                   />
                   <div className="profile-glow"></div>
                 </div>
-                
+
                 {/* Continuous Orbit Animation */}
                 <div className="orbit-system">
                   <div className="orbit-ring">
-                    {techStack.slice(0, 5).map((tech, i) => (
-                      <div key={tech.label} className="orbit-item" style={{ '--i': i, '--total': 5 } as React.CSSProperties}>
+                    {techStack.map((tech, i) => (
+                      <div key={tech.label} className="orbit-item" style={{ '--i': i, '--total': techStack.length } as React.CSSProperties}>
                         <div className="orbit-icon-wrapper glass-panel">
                           <tech.icon size={20} className="orbit-icon" />
                         </div>
@@ -783,7 +780,7 @@ export default function Portfolio() {
           </div>
 
           <div className="hero-right">
-            <motion.div 
+            <motion.div
               className="hero-text"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -846,7 +843,7 @@ export default function Portfolio() {
       <section id="about" className="section">
         <motion.div className="container" variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }}>
           <div className="section-header">
-            <h2 className="section-title">About Me</h2>
+            <h2 className="section-title about-section-title">About Me</h2>
           </div>
 
           <div className="about-content">
@@ -1136,7 +1133,7 @@ export default function Portfolio() {
             <div className="footer-social">
               {socialLinks.map((social) => {
                 const Icon = social.icon
-                
+
                 if (social.onClick) {
                     return (
                       <button
@@ -1166,15 +1163,15 @@ export default function Portfolio() {
         </div>
       </footer>
 
-      <LeetCodeModal 
-        isOpen={isLeetCodeModalOpen} 
-        onClose={() => setIsLeetCodeModalOpen(false)} 
+      <LeetCodeModal
+        isOpen={isLeetCodeModalOpen}
+        onClose={() => setIsLeetCodeModalOpen(false)}
       />
 
-      <GithubStatsModal 
-        isOpen={isGithubOpen} 
-        onClose={() => setIsGithubOpen(false)} 
-        username="harshagar12" 
+      <GithubStatsModal
+        isOpen={isGithubOpen}
+        onClose={() => setIsGithubOpen(false)}
+        username="harshagar12"
       />
 
       {/* Scroll to Top Button */}
