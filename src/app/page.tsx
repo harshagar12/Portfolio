@@ -1,9 +1,11 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { motion, AnimatePresence, Variants } from "framer-motion"
+import { motion, AnimatePresence, Variants, useMotionValue, useSpring, useTransform } from "framer-motion"
 import {
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Github,
   Linkedin,
   Twitter,
@@ -19,6 +21,7 @@ import {
   Sun,
   Moon,
   ChevronUp,
+  ArrowUpRight,
 } from "lucide-react"
 import {
   SiReact, SiNextdotjs, SiTypescript, SiNodedotjs,
@@ -64,7 +67,7 @@ const LeetCodeModal = ({ isOpen, onClose, username = "harsh_agar_12" }: { isOpen
       if (isOpen && !data) {
         setLoading(true);
         // Using external API to avoid server-side route issues with static export
-        fetch(`https://alfa-leetcode-api.onrender.com/userProfile/${username}`)
+        fetch(`https://leetcode-api-faisalshohag.vercel.app/${username}`)
           .then((res) => {
 
             if (!res.ok) throw new Error("Failed to fetch data");
@@ -338,6 +341,38 @@ const GithubStatsModal = ({ isOpen, onClose, username }: { isOpen: boolean; onCl
   };
 
 export default function Portfolio() {
+  // Global Mouse Tracking for Subtle Parallax
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      // Normalize between -1 and 1
+      const x = (e.clientX / window.innerWidth - 0.5) * 2;
+      const y = (e.clientY / window.innerHeight - 0.5) * 2;
+      mouseX.set(x);
+      mouseY.set(y);
+    }
+    window.addEventListener("mousemove", handleMouseMove, { passive: true })
+    return () => window.removeEventListener("mousemove", handleMouseMove)
+  }, [mouseX, mouseY])
+
+  const springConfig = { damping: 40, stiffness: 100, mass: 1 }
+  const smoothX = useSpring(mouseX, springConfig)
+  const smoothY = useSpring(mouseY, springConfig)
+
+  // Background Parallax Transforms (increased range for visibility on large blobs)
+  const bgBlob1X = useTransform(smoothX, [-1, 1], [-80, 80])
+  const bgBlob1Y = useTransform(smoothY, [-1, 1], [-80, 80])
+  const bgBlob2X = useTransform(smoothX, [-1, 1], [80, -80])
+  const bgBlob2Y = useTransform(smoothY, [-1, 1], [80, -80])
+
+  // Hero Image Parallax Transforms
+  const heroImgX = useTransform(smoothX, [-1, 1], [-8, 8])
+  const heroImgY = useTransform(smoothY, [-1, 1], [-8, 8])
+  const heroImgRotateY = useTransform(smoothX, [-1, 1], [-2, 2])
+  const heroImgRotateX = useTransform(smoothY, [-1, 1], [2, -2])
+
   const [activeSection, setActiveSection] = useState("home")
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isGithubOpen, setIsGithubOpen] = useState(false)
@@ -347,13 +382,20 @@ export default function Portfolio() {
   const [activeCategory, setActiveCategory] = useState("All")
   const [showScrollTop, setShowScrollTop] = useState(false)
 
+  // Skills: Capabilities Interface
+  const [activeCapability, setActiveCapability] = useState(0)
+
+  // Projects: Editorial Showcase
+  const [currentProject, setCurrentProject] = useState(0)
+  const [projectDirection, setProjectDirection] = useState(1)
+
   // Firebase Data State
   const [projects, setProjects] = useState<any[]>([]);
   const [accomplishments, setAccomplishments] = useState<any[]>([]);
   const [resumeUrl, setResumeUrl] = useState("");
 
   // Role rotation for hero
-  const roles = ["Full Stack Developer", "Third-Year CSE Student", "AI/ML Enthusiast", "Problem Solver"]
+  const roles = ["Full Stack Developer", "Final Year CSE Student", "AI/ML Enthusiast", "Problem Solver"]
   const [roleIndex, setRoleIndex] = useState(0)
 
   useEffect(() => {
@@ -472,85 +514,71 @@ export default function Portfolio() {
 
   const categories = ["All", "Web App", "AI/ML", "IoT", "Chrome Extension"]
 
-  // Framer Motion variants
+  // Cinematic Framer Motion variants
+  const premiumTransition = { duration: 1.2, ease: [0.22, 1, 0.36, 1] }
   const sectionVariants: Variants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+    hidden: { opacity: 0, filter: "blur(8px)", y: 40, scale: 0.98 },
+    visible: { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, transition: premiumTransition },
   }
 
   const staggerContainer: Variants = {
     hidden: {},
-    visible: { transition: { staggerChildren: 0.1 } },
+    visible: { transition: { staggerChildren: 0.12 } },
   }
 
   const staggerItem: Variants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+    hidden: { opacity: 0, filter: "blur(4px)", y: 20 },
+    visible: { opacity: 1, filter: "blur(0px)", y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } },
   }
 
-  // Skills data with brand icons
-  // Skills data with brand icons and grid spans
-  const skillCategories = [
+  // Capabilities Interface data
+  const capabilities = [
     {
-      title: "Frontend",
-      className: "bento-card-large",
-      icon: SiReact,
-      skills: [
-        { name: "React", desc: "Component architecture", icon: SiReact },
-        { name: "Next.js", desc: "Full-stack framework", icon: SiNextdotjs },
-        { name: "TypeScript", desc: "Type-safe development", icon: SiTypescript },
-        { name: "TailwindCSS", desc: "Utility-first styling", icon: SiTailwindcss },
-        { name: "HTML/CSS", desc: "Semantic markup & styling", icon: SiCss },
-      ],
+      index: "01",
+      label: "Intelligent Systems",
+      description:
+        "Building production-grade AI pipelines from document ingestion and vector search to multi-modal inference. Specializing in RAG architectures, computer vision workflows, and intelligent automation that runs at scale.",
+      tech: ["Python", "TensorFlow", "OpenCV", "FastAPI", "LangChain", "RAG Pipelines"],
     },
     {
-      title: "Backend & DB",
-      className: "bento-card-tall",
-      icon: SiNodedotjs,
-      skills: [
-        { name: "Node.js", desc: "Server environment", icon: SiNodedotjs },
-        { name: "Express", desc: "API framework", icon: SiExpress },
-        { name: "FastAPI", desc: "High-perf Python APIs", icon: SiFastapi },
-        { name: "PostgreSQL", desc: "Relational DB", icon: SiPostgresql },
-        { name: "MongoDB", desc: "NoSQL database", icon: SiMongodb },
-        { name: "MySQL", desc: "Relational database", icon: SiMysql },
-      ],
+      index: "02",
+      label: "Full-Stack Platforms",
+      description:
+        "Designing and shipping end-to-end web platforms using modern JavaScript ecosystems. From API design to reactive UIs, with a focus on performance, type safety and maintainable architecture.",
+      tech: ["React", "Next.js", "TypeScript", "Node.js", "Express", "PostgreSQL", "MongoDB"],
     },
     {
-      title: "Tools & DevOps",
-      className: "bento-card-standard",
-      icon: SiDocker,
-      skills: [
-        { name: "Docker", desc: "Containerization", icon: SiDocker },
-        { name: "Git", desc: "Version control", icon: SiGit },
-        { name: "Postman", desc: "API testing", icon: SiPostman },
-        { name: "Vercel", desc: "Deployment platform", icon: SiVercel },
-      ],
+      index: "03",
+      label: "AI/ML Engineering",
+      description:
+        "Training, evaluating and deploying machine learning models for real-world classification, regression and vision tasks. Comfortable across the full lifecycle from data wrangling to model serving.",
+      tech: ["Scikit-learn", "Pandas", "TensorFlow", "OpenCV", "Jupyter", "Matplotlib"],
     },
     {
-      title: "AI & ML",
-      className: "bento-card-wide",
-      icon: SiTensorflow,
-      skills: [
-        { name: "Python", desc: "Data processing", icon: SiPython },
-        { name: "TensorFlow", desc: "Deep learning", icon: SiTensorflow },
-        { name: "Pandas", desc: "Data analysis", icon: SiPandas },
-        { name: "Scikit-learn", desc: "Machine learning", icon: SiScikitlearn },
-        { name: "OpenCV", desc: "Computer vision", icon: SiOpencv },
-      ],
+      index: "04",
+      label: "IoT Automation",
+      description:
+        "Bridging physical hardware and intelligent software building embedded systems with microcontrollers, sensor networks and real-time cloud dashboards. Hackathon-proven solutions in health-tech and home automation.",
+      tech: ["ESP32", "Arduino", "MQTT", "Firebase", "Python", "Raspberry Pi"],
     },
     {
-      title: "Currently Learning",
-      className: "bento-card-full",
-      icon: FaAws,
-      skills: [
-        { name: "AWS", desc: "Cloud", icon: FaAws },
-        { name: "Rust", desc: "Systems programming", icon: SiRust },
-        { name: "Microservices", desc: "Distributed systems", icon: SiNodedotjs },
-        { name: "GraphQL", desc: "API query language", icon: SiGraphql },
-      ],
+      index: "05",
+      label: "Developer Tooling",
+      description:
+        "Building developer-facing tools Chrome extensions, CLI utilities and productivity-layer applications. Focused on DX, minimal surface area and ship-fast workflows.",
+      tech: ["Chrome Extensions API", "Git", "Docker", "Postman", "Vercel", "Linux"],
+    },
+    {
+      index: "06",
+      label: "Currently Exploring",
+      description:
+        "Actively studying distributed systems, cloud-native infrastructure and systems programming. Reading architecture docs, shipping side experiments and building intuition for high-scale engineering.",
+      tech: ["AWS", "Rust", "GraphQL", "Microservices", "Kubernetes"],
     },
   ]
+
+  // Skills data kept for reference (legacy bento grid removed)
+  const skillCategories: any[] = []
 
   // Hero mixed stack icons (AI/ML + core tools)
   const techStack = [
@@ -590,10 +618,18 @@ export default function Portfolio() {
     <div className="portfolio-container">
       {/* Ambient Background */}
       <div className="ambient-bg">
-        <div className="mesh-blob mesh-blob-1" />
-        <div className="mesh-blob mesh-blob-2" />
-        <div className="mesh-blob mesh-blob-3" />
-        <div className="mesh-blob mesh-blob-4" />
+        <motion.div style={{ position: 'absolute', inset: 0, x: bgBlob1X, y: bgBlob1Y }}>
+          <div className="mesh-blob mesh-blob-1" />
+        </motion.div>
+        <motion.div style={{ position: 'absolute', inset: 0, x: bgBlob2X, y: bgBlob2Y }}>
+          <div className="mesh-blob mesh-blob-2" />
+        </motion.div>
+        <motion.div style={{ position: 'absolute', inset: 0, x: bgBlob1X, y: bgBlob2Y }}>
+          <div className="mesh-blob mesh-blob-3" />
+        </motion.div>
+        <motion.div style={{ position: 'absolute', inset: 0, x: bgBlob2X, y: bgBlob1Y }}>
+          <div className="mesh-blob mesh-blob-4" />
+        </motion.div>
         <div className="noise-overlay" />
       </div>
 
@@ -751,16 +787,18 @@ export default function Portfolio() {
         <div className="hero-content">
           <div className="hero-left">
             <div className="identity-composition">
-                <div className="profile-image-wrapper">
-                  <Image
-                    src="/images/profile.jpg"
-                    alt="Harsh Agarwal"
-                    width={350}
-                    height={350}
-                    className="profile-image"
-                  />
-                  <div className="profile-glow"></div>
-                </div>
+                <motion.div style={{ x: heroImgX, y: heroImgY, rotateX: heroImgRotateX, rotateY: heroImgRotateY, perspective: 1000 }}>
+                  <div className="profile-image-wrapper">
+                    <Image
+                      src="/images/profile.jpg"
+                      alt="Harsh Agarwal"
+                      width={350}
+                      height={350}
+                      className="profile-image"
+                    />
+                    <div className="profile-glow"></div>
+                  </div>
+                </motion.div>
 
                 {/* Continuous Orbit Animation */}
                 <div className="orbit-system">
@@ -806,7 +844,7 @@ export default function Portfolio() {
               </h1>
 
               <p className="hero-description">
-                Third-year CSE student specializing in full-stack development, IoT automation and AI/ML integration.
+                Final year CSE student specializing in full-stack development, IoT automation and AI/ML integration.
                 Proven hackathon winner who transforms innovative ideas into practical solutions, bridging academic
                 excellence with real-world impact.
               </p>
@@ -918,138 +956,260 @@ export default function Portfolio() {
         </motion.div>
       </section>
 
-      {/* Skills Section */}
+      {/* Skills Section — Capabilities Interface */}
       <section id="skills" className="section section-alt">
-        <motion.div className="container" variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }}>
+        <motion.div
+          className="container"
+          variants={sectionVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+        >
           <div className="section-header">
-            <h2 className="section-title">Skills & Expertise</h2>
+            <h2 className="section-title">Skills</h2>
           </div>
 
-          <motion.div className="bento-grid" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            {skillCategories.map((cat) => (
-              <motion.div key={cat.title} className={`bento-card glass-panel ${cat.className}`} variants={staggerItem}>
-                <div className="bento-card-header">
-                  <cat.icon size={24} className="bento-card-main-icon" />
-                  <div className="bento-card-title">{cat.title}</div>
-                </div>
-                <div className={`bento-skill-list ${cat.className === 'bento-card-full' ? 'bento-skill-list-horizontal' : ''}`}>
-                  {cat.skills.map((skill) => (
-                    <div key={skill.name} className="bento-skill-item">
-                      <span className="bento-skill-icon"><skill.icon size={18} /></span>
-                      <div className="bento-skill-info">
-                        <span className="bento-skill-name">{skill.name}</span>
-                        <span className="bento-skill-desc">: {skill.desc}</span>
+          <div className="cap-interface">
+            {/* Left: Numbered nav */}
+            <nav className="cap-nav">
+              {capabilities.map((cap, i) => (
+                <button
+                  key={cap.index}
+                  className={`cap-nav-item ${activeCapability === i ? "active" : ""}`}
+                  onClick={() => setActiveCapability(i)}
+                  onMouseEnter={() => setActiveCapability(i)}
+                >
+                  <span className="cap-nav-index">{cap.index}</span>
+                  <span className="cap-nav-label">{cap.label}</span>
+                  {activeCapability === i && (
+                    <motion.div
+                      className="cap-nav-indicator"
+                      layoutId="cap-indicator"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                </button>
+              ))}
+            </nav>
+
+            {/* Right: Content panel */}
+            <div className="cap-panel-wrapper">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeCapability}
+                  className="cap-panel"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                  transition={{ duration: 0.32, ease: [0.25, 0.1, 0.25, 1] }}
+                >
+                  <p className="cap-panel-index">{capabilities[activeCapability].index}</p>
+                  <h3 className="cap-panel-title">{capabilities[activeCapability].label}</h3>
+                  <p className="cap-panel-desc">{capabilities[activeCapability].description}</p>
+                  <div className="cap-panel-tech-row">
+                    <span className="cap-panel-tech-label">Stack</span>
+                    <div className="cap-tech-chips">
+                      {capabilities[activeCapability].tech.map((t: string) => (
+                        <span key={t} className="cap-tech-chip">{t}</span>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* Projects Section — 3-up editorial showcase */}
+      <section id="projects" className="section">
+        <motion.div
+          className="container"
+          variants={sectionVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+        >
+          <div className="proj-section-header">
+            <div>
+              <h2 className="section-title">Featured Projects</h2>
+            </div>
+            {projects.length > 3 && (
+              <div className="proj-nav-controls">
+                <button
+                  className="proj-nav-btn"
+                  aria-label="Previous set"
+                  onClick={() => {
+                    setProjectDirection(-1)
+                    setCurrentProject((p) => Math.max(0, p - 3))
+                  }}
+                  disabled={currentProject === 0}
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <span className="proj-nav-counter">
+                  {String(Math.floor(currentProject / 3) + 1).padStart(2, "0")}
+                  <span className="proj-nav-counter-sep">/</span>
+                  {String(Math.ceil(projects.length / 3)).padStart(2, "0")}
+                </span>
+                <button
+                  className="proj-nav-btn"
+                  aria-label="Next set"
+                  onClick={() => {
+                    setProjectDirection(1)
+                    setCurrentProject((p) => Math.min(p + 3, projects.length - 1))
+                  }}
+                  disabled={currentProject + 3 >= projects.length}
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </div>
+            )}
+          </div>
+
+          {projects.length > 0 ? (
+            <AnimatePresence mode="wait" custom={projectDirection}>
+              <motion.div
+                key={currentProject}
+                custom={projectDirection}
+                variants={{
+                  enter: (dir: number) => ({ opacity: 0, x: dir * 50 }),
+                  center: { opacity: 1, x: 0 },
+                  exit: (dir: number) => ({ opacity: 0, x: dir * -30 }),
+                }}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
+                className="proj-trio"
+              >
+                {projects.slice(currentProject, currentProject + 3).map((project: any, idx: number) => {
+                  const isImageLeft = idx % 2 === 0
+                  return (
+                    <div
+                      key={project.title + idx}
+                      className={`proj-row ${isImageLeft ? "proj-row-img-left" : "proj-row-img-right"}`}
+                    >
+                      {/* Image */}
+                      <div className="proj-row-image">
+                        <div className="proj-image-inner">
+                          <Image
+                            src={project.image || "/placeholder.svg"}
+                            alt={project.title}
+                            fill
+                            className="proj-img"
+                          />
+                          <div className="proj-image-overlay" />
+                        </div>
+                        {project.category && (
+                          <span className="proj-category-badge">{project.category}</span>
+                        )}
+                      </div>
+
+                      {/* Content */}
+                      <div className="proj-row-content">
+                        <div className="proj-meta-row">
+                          <span className="proj-number">{String(currentProject + idx + 1).padStart(2, "0")}</span>
+                          {project.year && <span className="proj-year">{project.year}</span>}
+                        </div>
+                        <h3 className="proj-title">{project.title}</h3>
+                        <p className="proj-desc">{project.description}</p>
+
+                        {project.tech && project.tech.length > 0 && (
+                          <div className="proj-tech-chips">
+                            {project.tech.map((t: string) => (
+                              <span key={t} className="proj-tech-chip">{t}</span>
+                            ))}
+                          </div>
+                        )}
+
+                        <div className="proj-cta-row">
+                          {project.link && (
+                            <a href={project.link} target="_blank" rel="noopener noreferrer" className="proj-cta-btn proj-cta-primary">
+                              Visit <ArrowUpRight size={14} />
+                            </a>
+                          )}
+                          {project.github && (
+                            <a href={project.github} target="_blank" rel="noopener noreferrer" className="proj-cta-btn proj-cta-secondary">
+                              <Github size={14} /> GitHub
+                            </a>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  )
+                })}
               </motion.div>
-            ))}
-          </motion.div>
+            </AnimatePresence>
+          ) : (
+            <div className="proj-loading">Loading projects...</div>
+          )}
         </motion.div>
       </section>
 
-      {/* Projects Section */}
-      <section id="projects" className="section">
-        <motion.div className="container" variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }}>
-          <div className="section-header">
-            <h2 className="section-title">Featured Projects</h2>
-          </div>
-
-          <div className="project-filters">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setActiveCategory(category)}
-                className={`filter-btn ${activeCategory === category ? "active" : ""}`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-
-          <motion.div className="projects-grid" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            {projects.length > 0 ? (
-                projects.filter(project => activeCategory === "All" || project.category === activeCategory)
-                .map((project, index) => (
-                <motion.div
-                    key={index}
-                    className="project-card"
-                    variants={staggerItem}
-                >
-                    <div className="project-image">
-                    <Image
-                        src={project.image || "/placeholder.svg"}
-                        alt={project.title}
-                        width={300}
-                        height={200}
-                        className="project-img"
-                    />
-                    <div className="project-overlay">
-                        <a
-                        href={project.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="project-link"
-                        >
-                        <ExternalLink size={20} />
-                        </a>
-                    </div>
-                    </div>
-                    <div className="project-content">
-                    <h3 className="project-title">{project.title}</h3>
-                    <p className="project-description">{project.description}</p>
-                    <div className="project-tech">
-                        {project.tech?.map((tech: string) => (
-                        <span key={tech} className="tech-tag">
-                            {tech}
-                        </span>
-                        ))}
-                    </div>
-                    </div>
-                </motion.div>
-                ))
-            ) : (
-                 <div className="col-span-full text-center text-slate-500 py-10">Loading projects...</div>
-            )}
-          </motion.div>
-        </motion.div>
-      </section>
-
-      {/* Accomplishments Section */}
+      {/* Achievements Section — Editorial Wall */}
       <section id="accomplishments" className="section section-alt">
-        <motion.div className="container" variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }}>
+        <motion.div
+          className="container"
+          variants={sectionVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+        >
           <div className="section-header">
-            <h2 className="section-title">Accomplishments</h2>
+            <div>
+              <h2 className="section-title">Achievements</h2>
+            </div>
           </div>
 
-          <motion.div className="accomplishments-grid" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            {accomplishments.length > 0 ? (
-                accomplishments.map((accomplishment, index) => (
-                <motion.div
+          {accomplishments.length > 0 ? (
+            <div className="ach-wall">
+              {accomplishments.map((acc: any, index: number) => {
+                const isFeatured = index === 0
+                const isSecondary = index === 1 || index === 2
+                const cardClass = isFeatured
+                  ? "ach-card ach-featured"
+                  : isSecondary
+                  ? "ach-card ach-secondary"
+                  : "ach-card ach-tertiary"
+
+                return (
+                  <motion.div
                     key={index}
-                    className="accomplishment-card"
-                    variants={staggerItem}
-                >
-                    <div className="accomplishment-image-container">
-                    <Image
-                        src={accomplishment.image || "/placeholder.svg"}
-                        alt={accomplishment.title}
-                        fill
-                        className="accomplishment-img"
-                    />
-                    <span className="year-badge">{accomplishment.year}</span>
+                    className={cardClass}
+                    initial={{ opacity: 0, y: 24 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-10%" }}
+                    transition={{ duration: 0.5, delay: index * 0.07, ease: [0.25, 0.1, 0.25, 1] }}
+                    whileHover={{ y: -3 }}
+                  >
+                    {/* Full-bleed background image for ALL card types */}
+                    {acc.image && (
+                      <div className="ach-bg-img-wrap">
+                        <Image
+                          src={acc.image}
+                          alt={acc.title}
+                          fill
+                          className="ach-bg-img"
+                        />
+                        <div className="ach-bg-overlay" />
+                      </div>
+                    )}
+
+                    <div className="ach-card-body">
+                      {acc.year && (
+                        <span className="ach-year">{acc.year}</span>
+                      )}
+                      <h3 className="ach-title">{acc.title}</h3>
+                      <p className="ach-desc">{acc.description}</p>
                     </div>
-                    <div className="accomplishment-content">
-                    <h3 className="accomplishment-title">{accomplishment.title}</h3>
-                    <p className="accomplishment-description">{accomplishment.description}</p>
-                    </div>
-                </motion.div>
-                ))
-            ) : (
-                <div className="col-span-full text-center text-slate-500 py-10">Loading accomplishments...</div>
-            )}
-          </motion.div>
+                  </motion.div>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="proj-loading">Loading achievements...</div>
+          )}
         </motion.div>
       </section>
 
@@ -1060,61 +1220,49 @@ export default function Portfolio() {
             <h2 className="section-title">Education</h2>
           </div>
 
-          <motion.div className="education-cards" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+          <motion.div className="edu-timeline" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             {[
               {
-                degree: "B.Tech - Computer Science Engineering",
-                institution: "Jodhpur Institute of Engineering and Technology",
-                duration: "2023 - 2027",
+                degree: "B.Tech Computer Science Engineering",
+                institution: "Jodhpur Institute of Engineering & Technology",
+                duration: "2023 — 2027",
                 description:
-                  "Pursuing computer science with focus on Software development, Artificial Intelligence and Web technologies.",
-                achievements: [
-                  "CGPA: 9.43/10",
-                  "Silver Medal (Class Topper 2nd Sem)",
-                  "Member: Department Cultural Club",
-                ],
-                image: "/images/university.jpeg",
+                  "Focused on intelligent systems, AI applications and full-stack engineering.",
+                achievements: ["CGPA 9.43", "Silver Medalist"],
               },
               {
                 degree: "Higher Secondary Education",
-                institution: "Adarsh Vidya Mandir Shankar Vidya Peeth, Mount Abu",
-                duration: "2021 - 2023",
-                description: "Completed higher secondary school with focus on Mathematics and Science.",
+                institution: "Adarsh Vidya Mandir Shankar Vidya Peeth",
+                duration: "2021 — 2023",
+                description: "Completed higher secondary education with a focus on Mathematics and Science.",
                 achievements: ["12th: 78%"],
-                image: "/images/sechighschool.jpg",
               },
               {
-                degree: "Higher Education",
-                institution: "St. Marys High School, Mount Abu",
-                duration: "2013 - 2021",
-                description: "Completed high school with focus on Mathematics and Science.",
+                degree: "High School Education",
+                institution: "St. Mary's High School",
+                duration: "2013 — 2021",
+                description: "Completed high school with a focus on Mathematics and Science.",
                 achievements: ["10th: 90%"],
-                image: "/images/highschool.jpg",
               },
             ].map((education, index) => (
               <motion.div
                 key={index}
-                className="education-card"
+                className="edu-panel"
                 variants={staggerItem}
               >
-                <div className="education-image">
-                  <Image
-                    src={education.image || "/placeholder.svg"}
-                    alt={education.institution}
-                    width={200}
-                    height={150}
-                    className="education-img"
-                  />
+                <div className="edu-panel-left">
+                  <div className="edu-timeline-line"></div>
+                  <div className="edu-timeline-node"></div>
+                  <span className="edu-year">{education.duration}</span>
                 </div>
-                <div className="education-content">
-                  <h3 className="education-degree">{education.degree}</h3>
-                  <h4 className="education-institution">{education.institution}</h4>
-                  <p className="education-duration">{education.duration}</p>
-                  <p className="education-description">{education.description}</p>
-                  <div className="education-achievements">
-                    {education.achievements.map((achievement, i) => (
-                      <span key={i} className="achievement-tag">
-                        {achievement}
+                <div className="edu-panel-right">
+                  <h4 className="edu-inst">{education.institution}</h4>
+                  <h3 className="edu-degree">{education.degree}</h3>
+                  <p className="edu-desc">{education.description}</p>
+                  <div className="edu-meta">
+                    {education.achievements.map((ach, i) => (
+                      <span key={i} className="edu-meta-tag">
+                        {ach}
                       </span>
                     ))}
                   </div>
