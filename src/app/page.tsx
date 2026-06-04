@@ -515,7 +515,7 @@ export default function Portfolio() {
   const categories = ["All", "Web App", "AI/ML", "IoT", "Chrome Extension"]
 
   // Cinematic Framer Motion variants
-  const premiumTransition = { duration: 1.2, ease: [0.22, 1, 0.36, 1] }
+  const premiumTransition = { duration: 1.2, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }
   const sectionVariants: Variants = {
     hidden: { opacity: 0, filter: "blur(8px)", y: 40, scale: 0.98 },
     visible: { opacity: 1, filter: "blur(0px)", y: 0, scale: 1, transition: premiumTransition },
@@ -528,7 +528,7 @@ export default function Portfolio() {
 
   const staggerItem: Variants = {
     hidden: { opacity: 0, filter: "blur(4px)", y: 20 },
-    visible: { opacity: 1, filter: "blur(0px)", y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } },
+    visible: { opacity: 1, filter: "blur(0px)", y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
   }
 
   // Capabilities Interface data
